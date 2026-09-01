@@ -95,4 +95,4 @@ Logowanie e-mail + hasło. Płaski model użytkownika — bez ról. Każdy zalog
 
 ## Open Questions
 
-Brak otwartych pytań — kontrola jakości kształtowania (quality cross-check) przeszła bez luk; wszystkie sekcje wypełnione z notatek.
+1. **Czy podnieść framework o wersję główną po dostarczeniu MVP?** — Właściciel: użytkownik. Termin: po 2026-09-14. Świadomie odroczone: bieżąca gałąź frameworka jest w trybie utrzymaniowym i pozostawia 4 nienaprawione podatności (szczegóły i łagodzenie w rejestrze ryzyka `context/foundation/infrastructure.md`). Nie blokuje MVP.
