@@ -1,31 +1,8 @@
 import type { APIRoute } from "astro";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase";
-import { todayInWarsaw } from "@/lib/services/expense-parser";
-import { EXPENSE_CATEGORIES } from "@/types";
+import { expensePayloadSchema } from "@/lib/services/expense-schema";
 
 export const prerender = false;
-
-// Real calendar date (rejects 2026-13-45) inside the same sanity window the
-// parser applies: yesterday-relative entries up to a year back, tomorrow max.
-function isPlausibleExpenseDate(value: string): boolean {
-  const parsed = Date.parse(`${value}T00:00:00Z`);
-  if (Number.isNaN(parsed) || new Date(parsed).toISOString().slice(0, 10) !== value) {
-    return false;
-  }
-  const diffDays = (Date.parse(todayInWarsaw()) - parsed) / 86_400_000;
-  return diffDays >= -1 && diffDays <= 366;
-}
-
-const createExpenseSchema = z.object({
-  amount: z.number().positive().max(100_000),
-  category: z.enum(EXPENSE_CATEGORIES),
-  expense_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .refine(isPlausibleExpenseDate, { message: "expense_date must be a real date within the last year" }),
-  description: z.string().trim().min(1).max(300),
-});
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -51,7 +28,7 @@ export const POST: APIRoute = async (context) => {
     return json(400, { error: "Invalid JSON body" });
   }
 
-  const parsed = createExpenseSchema.safeParse(body);
+  const parsed = expensePayloadSchema.safeParse(body);
   if (!parsed.success) {
     return json(400, { error: "Invalid expense payload", issues: parsed.error.issues });
   }

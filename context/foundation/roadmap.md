@@ -37,11 +37,11 @@ Autor nie śledzi wydatków w ogóle, bo tarcie przy wpisie (formularze, kategor
 
 ## W skrócie
 
-| ID   | Change ID                | Wynik (użytkownik może …)                                     | Wymagania wstępne | Odnośniki PRD                         | Status   |
-| ---- | ------------------------ | ------------------------------------------------------------- | ----------------- | ------------------------------------- | -------- |
-| S-01 | add-expense-by-sentence  | dodać wydatek jednym zdaniem i zobaczyć go na liście miesiąca | —                 | FR-001, FR-002, FR-003, FR-004, US-01 | done     |
-| S-02 | edit-delete-expense      | edytować i usunąć zapisany wydatek                            | S-01              | FR-005, FR-006                        | proposed |
-| S-03 | monthly-category-summary | zobaczyć sumę bieżącego miesiąca wg kategorii                 | S-01              | FR-007                                | proposed |
+| ID   | Change ID                | Wynik (użytkownik może …)                                     | Wymagania wstępne | Odnośniki PRD                         | Status      |
+| ---- | ------------------------ | ------------------------------------------------------------- | ----------------- | ------------------------------------- | ----------- |
+| S-01 | add-expense-by-sentence  | dodać wydatek jednym zdaniem i zobaczyć go na liście miesiąca | —                 | FR-001, FR-002, FR-003, FR-004, US-01 | done        |
+| S-02 | edit-delete-expense      | edytować i usunąć zapisany wydatek                            | S-01              | FR-005, FR-006                        | in-progress |
+| S-03 | monthly-category-summary | zobaczyć sumę bieżącego miesiąca wg kategorii                 | S-01              | FR-007                                | in-progress |
 
 ## Baza
 
@@ -85,7 +85,7 @@ Brak. Uwierzytelnianie i wdrożenie są obecne w bazie; praca nad warstwą danyc
 - **Blokery:** —
 - **Niewiadome:** —
 - **Ryzyko:** formularz edycji naturalnie reużywa interfejsu poprawki propozycji z S-01 — sekwencjonowanie po S-01 zapobiega budowaniu tego samego formularza dwa razy.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-03: Użytkownik widzi podsumowanie miesiąca wg kategorii
 
@@ -97,7 +97,7 @@ Brak. Uwierzytelnianie i wdrożenie są obecne w bazie; praca nad warstwą danyc
 - **Blokery:** —
 - **Niewiadome:** —
 - **Ryzyko:** czysty odczyt danych z S-01 — najmniejszy fragment; sekwencjonowany po S-01 wyłącznie przez zależność od danych.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Przekazanie do backlogu
 
