@@ -36,7 +36,7 @@ Zablokowany schemat, do którego dostosowują się zarówno ta umiejętność, j
 
 - `/10x-init` — tworzy szkielet `/context` (`changes/`, `archive/`, `foundation/`) oraz uniwersalne pliki README w każdym z nich. `/10x-shape` wymaga istnienia `context/foundation/`; jeśli go brakuje, deleguje do `/10x-init` za pomocą narzędzia `Skill` (Krok 0 poniżej).
 - `/10x-prd` — konsumuje `shape-notes.md`. Przekazanie to zapis do schowka w `## Krok 8`.
-- `/10x-frame` — do *przeformułowania* problemów o małym zakresie w istniejących systemach, gdzie pełne PRD jest przesadą. `/10x-shape` jest przeznaczony do większych zmian brownfield (nowe moduły, znaczące funkcje), które wymagają ustrukturyzowanego odkrywania i PRD.
+- `/10x-frame` — do _przeformułowania_ problemów o małym zakresie w istniejących systemach, gdzie pełne PRD jest przesadą. `/10x-shape` jest przeznaczony do większych zmian brownfield (nowe moduły, znaczące funkcje), które wymagają ustrukturyzowanego odkrywania i PRD.
 - `/10x-stack-assess` — następny po `/10x-prd` dla projektów brownfield. Ocenia istniejący stos pod kątem bram jakości.
 - `/10x-health-check` — następny po `/10x-stack-assess` dla brownfield. Audytuje istniejący stan projektu.
 - `/10x-plan` — następny po `/10x-prd`, nigdy nie wywoływany bezpośrednio stąd.
@@ -82,6 +82,7 @@ Jeśli istnieje, przejdź do Kroku 0.5.
 Jeśli brakuje, projekt nie został zainicjowany dla 10xWorkflow. Zapytaj:
 
 AskUserQuestion:
+
 - question: "Ten katalog nie jest zainicjowany dla 10xWorkflow (brakuje context/foundation/). Uruchomić /10x-init teraz?"
   header: "Inicjalizacja?"
   options:
@@ -89,7 +90,7 @@ AskUserQuestion:
     description: "Tworzy szkielet /context (changes/, archive/, foundation/) z plikami README, a następnie kontynuuje kształtowanie."
   - label: "Nie — zatrzymaj tutaj"
     description: "Wyjdź bez zmian. Będziesz musiał zainicjować przed uruchomieniem kształtowania."
-  multiSelect: false
+    multiSelect: false
 
 W przypadku "Tak": wywołaj `/10x-init` za pomocą narzędzia **Skill** (NIE za pomocą Bash). Gdy `/10x-init` zwróci wynik, ponownie sprawdź warunek wstępny; jeśli teraz przejdzie, kontynuuj do Kroku 0.5. W przypadku "Nie": wydrukuj "Zatrzymywanie. Uruchom `/10x-init`, gdy będziesz gotowy, a następnie ponownie wywołaj `/10x-shape`." i ZATRZYMAJ.
 
@@ -122,6 +123,7 @@ Znaleziono poprzednią sesję kształtowania w context/foundation/shape-notes.md
 Następnie zapytaj:
 
 AskUserQuestion:
+
 - question: "Jak chcesz postąpić?"
   header: "Wznowić?"
   options:
@@ -131,7 +133,7 @@ AskUserQuestion:
     description: "Zarchiwizuj istniejący shape-notes.md do context/foundation/archive/ i rozpocznij nową sesję."
   - label: "Anuluj"
     description: "Wyjdź bez zmian."
-  multiSelect: false
+    multiSelect: false
 
 W przypadku "Wznów": przejdź bezpośrednio do następnej nieukończonej fazy (Krok `current_phase` + (1, jeśli bieżąca jest w `phases_completed`, w przeciwnym razie 0)). NIE uruchamiaj ponownie ukończonych faz — tylko podsumuj każdą z nich użytkownikowi w 1-2 zdaniach ("Faza 1 uchwyciła: <jednolinijkowy problem>; Faza 2 uchwyciła: <jednolinijkowa persona>; …"), aby miał kontekst tego, co już zostało ustalone.
 
@@ -186,6 +188,7 @@ Get-ChildItem -Path . -Filter 'vite.config.*' -File -ErrorAction SilentlyContinu
 ```
 
 Punktacja:
+
 - **Trafienie Poziomu 1** (istnieje historia git) → silny sygnał brownfield
 - **Trafienie Poziomu 2** (istnieje plik lockfile) → silny sygnał brownfield
 - **Poziom 1 + Poziom 2** → brownfield o wysokiej pewności
@@ -193,6 +196,7 @@ Punktacja:
 - **Brak sygnałów** → greenfield
 
 Logika decyzji:
+
 - **Dowolne trafienie Poziomu 1 lub Poziomu 2** → proponuj `context_type: brownfield`
 - **Tylko Poziom 3** → proponuj brownfield, ale zaznacz niejednoznaczność: "Znalazłem plik manifestu, ale brak pliku lockfile lub historii git — może to być świeżo zainicjowany projekt, a nie prawdziwy brownfield."
 - **Brak sygnałów** → proponuj `context_type: greenfield`
@@ -200,6 +204,7 @@ Logika decyzji:
 Wydrukuj, co zostało wykryte:
 
 - **Brownfield o wysokiej pewności** (T1 lub T2):
+
   ```
   Wygląda na istniejący projekt:
     [lista wykrytych sygnałów, np. "historia git (47 commitów)", "package-lock.json", "katalog src/"]
@@ -208,6 +213,7 @@ Wydrukuj, co zostało wykryte:
   ```
 
 - **Niejednoznaczne** (tylko T3):
+
   ```
   Znalazłem [plik manifestu], ale brak pliku lockfile lub historii git — może to być
   świeżo zainicjowany projekt lub prawdziwy brownfield. Zaproponuję tryb brownfield,
@@ -223,6 +229,7 @@ Wydrukuj, co zostało wykryte:
 Następnie potwierdź z użytkownikiem:
 
 AskUserQuestion:
+
 - question: "Wykryty kontekst: [greenfield|brownfield]. Czy to poprawne?"
   header: "Kontekst"
   options:
@@ -230,7 +237,7 @@ AskUserQuestion:
     description: "[Opis trybu automatycznie wykrytego]"
   - label: "[Inny tryb] — nadpisz"
     description: "Zamiast tego przełącz na [inny tryb]."
-  multiSelect: false
+    multiSelect: false
 
 Natychmiast zapisz potwierdzony `context_type` w nagłówku YAML pliku shape-notes.md (obok `checkpoint:`). Ta wartość jest kluczowa dla automatycznego routingu `/10x-prd`.
 
@@ -432,7 +439,7 @@ Ta faza tworzy sekcje `## Functional Requirements` i `## User Stories`.
 
 #### Tryb Greenfield
 
-Rozpocznij od: "Teraz przejdźmy do konkretów. Z naszkicowanego przepływu MVP, co aktor musi być *w stanie* zrobić? Wymień możliwości — sformatuję je jako FR."
+Rozpocznij od: "Teraz przejdźmy do konkretów. Z naszkicowanego przepływu MVP, co aktor musi być _w stanie_ zrobić? Wymień możliwości — sformatuję je jako FR."
 
 Przechwyć każdą możliwość jako pojedynczą linię FR zgodnie z formatem schematu:
 
@@ -607,7 +614,7 @@ Po zablokowaniu ramowania produktu, dodaj: "Jakie ograniczenia narzuca istnieją
 
 #### Oba tryby
 
-Po zablokowaniu ramowania produktu, przeprowadź **jedną** rundę wielokrotnego wyboru Non-Goals. Kształt to lista unikania wielokrotnego wyboru — ale skierowana na unikanie *zakresu* (możliwości, których MVP nie zbuduje / zmiana nie dotknie, wymiary jakości, do których nie będzie dążyć), a nie unikanie technologii. Zapytaj:
+Po zablokowaniu ramowania produktu, przeprowadź **jedną** rundę wielokrotnego wyboru Non-Goals. Kształt to lista unikania wielokrotnego wyboru — ale skierowana na unikanie _zakresu_ (możliwości, których MVP nie zbuduje / zmiana nie dotknie, wymiary jakości, do których nie będzie dążyć), a nie unikanie technologii. Zapytaj:
 
 ```
 Czego ten [MVP/zmiana] wyraźnie NIE robi? Wybierz wszystko, co powinno być
@@ -642,7 +649,7 @@ Odczytaj bieżący `shape-notes.md` i sprawdź każdy z poniższych elementów. 
 3. **Artefakty projektu** — sam `shape-notes.md` istnieje z prawidłowym punktem kontrolnym w nagłówku YAML. (W tym momencie zawsze jest obecny.)
 4. **Potwierdzenie kosztu czasowego** — albo `timeline_budget.mvp_weeks` / `delivery_weeks` ≤ 3, ALBO blok `## Timeline acknowledgment` istnieje w shape-notes, rejestrujący, że użytkownik zaakceptował koszt stałego wysiłku w Kroku 3. Dłuższe terminy są ważne; bramą jest to, że koszt został przedstawiony i zaakceptowany, a nie to, że termin jest krótki.
 5. **Non-Goals** — blok `## Non-Goals` istnieje z co najmniej jednym wpisem.
-6. **Zachowane zachowanie** *(tylko brownfield)* — blok `## Constraints & Preserved Behavior` istnieje i wyraźnie nazywa, co nie może się zepsuć. Pomiń to sprawdzenie dla sesji greenfield.
+6. **Zachowane zachowanie** _(tylko brownfield)_ — blok `## Constraints & Preserved Behavior` istnieje i wyraźnie nazywa, co nie może się zepsuć. Pomiń to sprawdzenie dla sesji greenfield.
 
 NIE sprawdzaj `## Testing Strategy`, `## Deployment & CI/CD` ani `## Implementation Decisions` — nie są one częścią schematu PRD. Znajdują się one po wyborze stosu / ocenie stosu, a nie w PRD.
 
@@ -668,6 +675,7 @@ Dla każdego `brakującego/słabego`, **wymień go z nazwy** z jednolinijkową k
 Następnie zapytaj:
 
 AskUserQuestion:
+
 - question: "Jak chcesz postąpić?"
   header: "Kontrola krzyżowa"
   options:
@@ -677,7 +685,7 @@ AskUserQuestion:
     description: "Kontynuuj pomimo luk. Zostaną one zarejestrowane jako ostrzeżenia w punkcie kontrolnym i przedstawione w Otwartych Pytaniach /10x-prd."
   - label: "Uruchom ponownie fazę [N]"
     description: "Wróć do konkretnej fazy i odbuduj od tego miejsca."
-  multiSelect: false
+    multiSelect: false
 
 W przypadku "Usuń luki teraz": zapytaj, która luka; wróć do fazy, która ją posiada (Krok 1-6); uruchom ponownie tylko tę fazę; następnie wróć do Kroku 7.
 

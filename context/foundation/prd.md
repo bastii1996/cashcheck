@@ -30,12 +30,15 @@ Persona główna: autor projektu — osoba pracująca, chce kontrolować osobist
 ## Success Criteria
 
 ### Primary
+
 - Działa pełny przepływ: loguję się → wpisuję „biedronka 87,50" → widzę propozycję (kwota/kategoria/data) → zatwierdzam → wydatek jest na liście → widzę sumę bieżącego miesiąca wg kategorii.
 
 ### Secondary
+
 - Autor używa aplikacji codziennie przez tydzień (miernik nawyku — tarcie wpisu jest realnie niskie).
 
 ### Guardrails
+
 - Prywatność danych: użytkownik nigdy nie widzi wydatków innego użytkownika.
 
 ## User Stories
@@ -47,6 +50,7 @@ Persona główna: autor projektu — osoba pracująca, chce kontrolować osobist
 - **Then** wydatek z kwotą 87,50, kategorią Żywność i dzisiejszą datą jest na liście, a suma bieżącego miesiąca rośnie
 
 #### Acceptance Criteria
+
 - Propozycja pokazuje kwotę, kategorię i datę przed zapisem; każde pole można poprawić
 - Zatwierdzony wydatek pojawia się na liście bieżącego miesiąca bez przeładowania strony
 - Suma miesiąca wg kategorii uwzględnia nowy wydatek

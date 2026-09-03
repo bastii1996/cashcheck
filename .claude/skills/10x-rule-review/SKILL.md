@@ -39,10 +39,10 @@ Jeśli plik nie istnieje, zatrzymaj się i zgłoś ścieżkę. Nie wymyślaj tre
 
 ## Czego ta umiejętność NIE robi
 
-- Nie edytuje pliku reguł, *chyba że użytkownik wyraźnie zatwierdzi proponowaną przez Sprawdzenie 5 zmianę kolejności*. Domyślny wynik jest tylko do odczytu.
+- Nie edytuje pliku reguł, _chyba że użytkownik wyraźnie zatwierdzi proponowaną przez Sprawdzenie 5 zmianę kolejności_. Domyślny wynik jest tylko do odczytu.
 - Nie generuje pełnej "naprawionej wersji" pliku. Co najwyżej, Sprawdzenie 5 może przenosić/grupować sekcje; nigdy nie przepisuje treści reguł.
 - Nie zakłada docelowego narzędzia pliku. CLAUDE.md, AGENTS.md, `.mdc`, `.windsurfrules`, niestandardowe nazwy — wszystkie traktowane są jako "plik reguł dla AI".
-- Nie ocenia *treści projektu* (architektury, wyborów technologicznych, konwencji). Ocenia *stan artefaktu reguł* — tak samo, jak przegląd kodu ocenia kod, a nie produkt.
+- Nie ocenia _treści projektu_ (architektury, wyborów technologicznych, konwencji). Ocenia _stan artefaktu reguł_ — tak samo, jak przegląd kodu ocenia kod, a nie produkt.
 
 ## Procedura
 
@@ -60,34 +60,38 @@ Jeśli plik nie istnieje, zatrzymaj się i zgłoś ścieżkę. Nie wymyślaj tre
 
 Policz niepuste linie (ignoruj puste linie i czyste linie separatorów, takie jak `---`).
 
-| Linie       | Werdykt      | Symbol |
-|-------------|--------------|--------|
-| 0–200       | w porządku   | OK     |
-| 201–500     | uwaga        | WARN   |
-| 501+        | ostrzeżenie  | FAIL   |
+| Linie   | Werdykt     | Symbol |
+| ------- | ----------- | ------ |
+| 0–200   | w porządku  | OK     |
+| 201–500 | uwaga       | WARN   |
+| 501+    | ostrzeżenie | FAIL   |
 
 Dlaczego to ważne: długie pliki reguł zajmują miejsce na prompt użytkownika w oknie kontekstu, a reguły w środku pliku otrzymują najmniejszą uwagę od modelu. Długość jest wskaźnikiem tego, że "płacisz kontekstem za rzeczy, których agent nie potrzebuje w każdej sesji".
 
 Dla WARN/FAIL, zasugeruj:
+
 - Podziel reguły dotyczące poszczególnych obszarów na zagnieżdżone pliki bliżej ich kodu (np. `src/api/AGENTS.md`).
 - Zastąp zduplikowane dokumenty odniesieniami `@`- do kanonicznego pliku.
 - Usuń reguły, które nie są związane z powtarzającym się trybem awarii agenta.
 
 ### Sprawdzenie 2 — Bezpośrednie fragmenty kodu/konfiguracji
 
-Skanuj w poszukiwaniu bloków kodu w ogrodzeniach (```` ``` ````) i wbudowanych bloków kodu dłuższych niż ~3 linie.
+Skanuj w poszukiwaniu bloków kodu w ogrodzeniach (` ``` `) i wbudowanych bloków kodu dłuższych niż ~3 linie.
 
 Oznacz każdy blok, który wygląda jak:
+
 - Przykładowy komponent, endpoint, migracja, schemat, zapytanie, skrypt bash lub test.
 - Plik konfiguracyjny (`tsconfig.json`, `eslintrc`, `package.json`, `wrangler.toml`).
 - Szablon migracji lub boilerplate, który znajduje się gdzie indziej w repozytorium.
 
 **Nie** oznaczaj:
-- Krótkich fragmentów strukturalnych używanych do zdefiniowania *formatu*, który agent musi wygenerować (np. szablon kształtu błędu o długości 2–4 linii).
+
+- Krótkich fragmentów strukturalnych używanych do zdefiniowania _formatu_, który agent musi wygenerować (np. szablon kształtu błędu o długości 2–4 linii).
 - Przykładów poleceń (`npm run dev`, `git rebase`, itp.).
 - Bloków Mermaid/diagramów.
 
 Dla każdego oznaczonego bloku zasugeruj:
+
 - Przenieś fragment do rzeczywistego pliku w repozytorium.
 - Zastąp blok jednowierszowym odniesieniem `@`- np. `@src/features/users/user.service.ts`, `@docs/api-errors.md`.
 - Powód: przykład będzie błędny w dwóch miejscach przy następnym refaktoryzacji; odniesienie nie może się rozjechać.
@@ -110,6 +114,7 @@ Skanuj w poszukiwaniu niejasnych intencji, których nie można sprawdzić w por�
 Dla każdego dopasowania, **zawsze proponuj co najmniej jedną konkretną, testowalną alternatywę, osadzoną w kontekście tego projektu**. Nigdy nie sugeruj "po prostu to usuń" — autor umieścił tam tę linię z jakiegoś powodu; Twoim zadaniem jest przetłumaczenie intencji na coś, co recenzent może sprawdzić w porównaniu z różnicą.
 
 Aby ugruntować sugestię, czerp sygnały z:
+
 - przeglądanego pliku (wspomniany stos, zasady nazewnictwa podane gdzie indziej, twarde reguły w innych sekcjach),
 - pobliskich akapitów wokół niejasnego zwrotu (co autor zamierzał powiedzieć?),
 - widocznego kontekstu repozytorium, jeśli jest dostępny (`package.json`, `tsconfig.json`, wybór frameworka, konfiguracja lintera, pliki reguł rodzeństwa).
@@ -118,14 +123,14 @@ Jeśli kontekst projektu naprawdę nie sugeruje niczego konkretnego, zaproponuj 
 
 Przykłady (zwróć uwagę, jak każda zamiana wykorzystuje nazwy/konwencje specyficzne dla projektu, a nie ogólne porady):
 
-| Niejasne wyrażenie w pliku              | Sygnał kontekstu projektu                          | Ugruntowana, testowalna zamiana                                                                              |
-|-----------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| "Pisz czysty kod"                | TypeScript + ESLint wspomniane w tym samym pliku      | "Unikaj `any`. Funkcje powyżej 40 linii muszą być podzielone. Uruchom `pnpm lint` przed commitowaniem."                   |
-| "Poprawnie obsługuj błędy"          | Twarda reguła wcześniej: API zwraca kształt `{ error: {...} }` | "Obsługi API muszą zwracać `{ error: { code, message, context } }` zgodnie z powyżej zdefiniowanym kształtem. Nigdy nie rzucaj surowych błędów." |
-| "Bądź konsekwentny w nazewnictwie"       | Plik wspomina `feature.handler.ts` gdzie indziej    | "Używaj `<feature>.handler.ts` (pasującego do istniejących handlerów w `src/api/`), a nie `featureHandler.ts`."       |
-| "Używaj nowoczesnych wzorców"             | Projekt używa natywnego JS, brak lodash w `package.json` | "Używaj natywnych metod `Array`/`Object`. Nie dodawaj `lodash` — nie ma go w `package.json` i tak to utrzymujemy." |
-| "Spraw, aby komponenty były czytelne"        | Projekt React + Tailwind                         | "Komponenty powyżej 150 linii muszą być podzielone. Klasy Tailwind przechodzą przez `cn()` dla warunków (założone — potwierdź, jeśli używany jest inny pomocnik)." |
-| "Zachowaj prostotę"              | Usługa Python FastAPI                           | "Preferuj jeden model Pydantic na żądanie/odpowiedź. Brak zagnieżdżonych dekoratorów poza `@router.post` + `@requires_auth`." |
+| Niejasne wyrażenie w pliku            | Sygnał kontekstu projektu                                      | Ugruntowana, testowalna zamiana                                                                                                                                    |
+| ------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Pisz czysty kod"                     | TypeScript + ESLint wspomniane w tym samym pliku               | "Unikaj `any`. Funkcje powyżej 40 linii muszą być podzielone. Uruchom `pnpm lint` przed commitowaniem."                                                            |
+| "Poprawnie obsługuj błędy"            | Twarda reguła wcześniej: API zwraca kształt `{ error: {...} }` | "Obsługi API muszą zwracać `{ error: { code, message, context } }` zgodnie z powyżej zdefiniowanym kształtem. Nigdy nie rzucaj surowych błędów."                   |
+| "Bądź konsekwentny w nazewnictwie"    | Plik wspomina `feature.handler.ts` gdzie indziej               | "Używaj `<feature>.handler.ts` (pasującego do istniejących handlerów w `src/api/`), a nie `featureHandler.ts`."                                                    |
+| "Używaj nowoczesnych wzorców"         | Projekt używa natywnego JS, brak lodash w `package.json`       | "Używaj natywnych metod `Array`/`Object`. Nie dodawaj `lodash` — nie ma go w `package.json` i tak to utrzymujemy."                                                 |
+| "Spraw, aby komponenty były czytelne" | Projekt React + Tailwind                                       | "Komponenty powyżej 150 linii muszą być podzielone. Klasy Tailwind przechodzą przez `cn()` dla warunków (założone — potwierdź, jeśli używany jest inny pomocnik)." |
+| "Zachowaj prostotę"                   | Usługa Python FastAPI                                          | "Preferuj jeden model Pydantic na żądanie/odpowiedź. Brak zagnieżdżonych dekoratorów poza `@router.post` + `@requires_auth`."                                      |
 
 Werdykt: OK, jeśli 0 niejasnych zwrotów · WARN, jeśli 1–3 · FAIL, jeśli 4+.
 
@@ -148,12 +153,14 @@ Użyj tych samokontroli podczas skanowania:
 - **Test "zapachu samouczka".** Jeśli akapit wygląda jak sekcja ze strony "Getting Started" frameworka lub artykułu na Medium — to jest treść samouczka, a nie wiedza o projekcie. Czytałeś je podczas szkolenia.
 
 Co **nie** jest redundantne (nie oznaczaj):
+
 - Konwencje specyficzne dla projektu, które są sprzeczne z domyślnymi ustawieniami frameworka ("używamy `useEffect` tylko do efektów ubocznych niezwiązanych z danymi").
 - Lokalne pułapki i historyczne obejścia, których nie można było wywnioskować z kodu ("tabela `events` jest partycjonowana według miesiąca — masowe wstawienia do niewłaściwej partycji kończą się cicho niepowodzeniem").
 - Wewnętrzne zasady nazewnictwa, układu lub przepływu pracy ("postings znajdują się w `<verb>_<noun>.posting.ts`").
 - Reguły, które wyglądają ogólnie, ale są związane z rzeczywistym incydentem (plik powinien wspominać o incydencie lub linkować do rejestru trybów awarii).
 
 Dla każdego oznaczonego akapitu zasugeruj jedną z opcji:
+
 - **Usuń go** — już to wiedziałeś.
 - **Zastąp odniesieniem `@`-** — `@README.md`, `@tsconfig.json`, `@docs/...`.
 - **Zachowaj tylko, jeśli jest poparte incydentem** — a jeśli tak, poproś autora o dodanie notatki o incydencie w tekście, aby reguła przetrwała przyszłe audyty.
@@ -164,13 +171,14 @@ Werdykt: OK, jeśli 0 redundantnych akapitów · WARN, jeśli 1–3 · FAIL, je�
 
 Modele zwracają większą uwagę na początek i koniec długich kontekstów ("uwaga w kształcie litery U"). Krytyczne reguły ukryte w środku długiego pliku są statystycznie mniej prawdopodobne do przestrzegania. To sprawdzenie ma swój własny, wieloetapowy przepływ, ponieważ zmiana kolejności pliku to znacząca edycja, a nie jednowierszowa poprawka.
 
-Wykonaj kroki w kolejności. Wynik tego sprawdzenia trafia do karty wyników *i* może wywołać interaktywną zmianę kolejności.
+Wykonaj kroki w kolejności. Wynik tego sprawdzenia trafia do karty wyników _i_ może wywołać interaktywną zmianę kolejności.
 
 #### Krok 5a — Wypisz obecną, ogólną kolejność
 
 Przejdź przez plik i wydrukuj obecną strukturę najwyższego poziomu jako listę numerowaną. Użyj nagłówków H1/H2 (i H3 tylko, jeśli nie ma H2). Uwzględnij numer linii każdego nagłówka. **Nie** komentuj jeszcze — po prostu przedstaw to, co jest.
 
 Przykład:
+
 ```
 Obecna kolejność:
 1. # Witamy w OrderFlow            (linia 1)
@@ -184,7 +192,7 @@ Obecna kolejność:
 N. ## Konwencje projektu            (linia 312)
 ```
 
-Jeśli plik nie ma nagłówków, wyraźnie to zaznacz: *"Brak nagłówków sekcji — plik to jeden niezróżnicowany blok."*
+Jeśli plik nie ma nagłówków, wyraźnie to zaznacz: _"Brak nagłówków sekcji — plik to jeden niezróżnicowany blok."_
 
 #### Krok 5b — Skomentuj kolejność
 
@@ -205,9 +213,10 @@ Następnie przedstaw problem strukturalny w jednym akapicie. Przykłady:
 
 #### Krok 5c — Zaproponuj lepszą kolejność (tylko w razie potrzeby)
 
-Jeśli komentarz w 5b zidentyfikował rzeczywisty problem, zaproponuj docelową kolejność. Sformułuj to jako *"sekcje przeniesione na górę / zachowane / przeniesione na dół / usunięte"*, a nie jako pełne przepisanie każdej linii.
+Jeśli komentarz w 5b zidentyfikował rzeczywisty problem, zaproponuj docelową kolejność. Sformułuj to jako _"sekcje przeniesione na górę / zachowane / przeniesione na dół / usunięte"_, a nie jako pełne przepisanie każdej linii.
 
 Przykład:
+
 ```
 Proponowana kolejność:
 1. ## Twarde reguły         (było: linia 312)        ← przeniesione na górę
@@ -218,7 +227,7 @@ Proponowana kolejność:
 —   ## O zespole / Misja / Wartości        ← usuń (Sprawdzenie 3/4 już je oznaczyło)
 ```
 
-Jeśli 5b nie znalazło problemu, całkowicie pomiń 5c — powiedz *"Kolejność jest prawidłowa; nie jest potrzebna zmiana."*
+Jeśli 5b nie znalazło problemu, całkowicie pomiń 5c — powiedz _"Kolejność jest prawidłowa; nie jest potrzebna zmiana."_
 
 #### Krok 5d — Zapytaj przed zmianą kolejności
 

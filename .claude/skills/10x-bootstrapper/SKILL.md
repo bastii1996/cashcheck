@@ -109,6 +109,7 @@ Otrzymano przekazanie:
 Zadaj jedno pytanie potwierdzające:
 
 AskUserQuestion:
+
 - question: "Kontynuować z tym przekazaniem, czy najpierw coś poprawić?"
   header: "Przekazanie"
   options:
@@ -118,7 +119,7 @@ AskUserQuestion:
     description: "Zapytam, które pole nadpisać dla tego uruchomienia; plik na dysku pozostanie niezmieniony."
   - label: "Zatrzymaj — najpierw popraw przekazanie"
     description: "Wyjdź. Uruchom ponownie /10x-tech-stack-selector, aby zaktualizować tech-stack.md, a następnie wywołaj ponownie."
-  multiSelect: false
+    multiSelect: false
 
 Jeśli "Popraw wartość": zapytaj, które pole, przechwyć nadpisanie, kontynuuj z nadpisaniem zastosowanym tylko dla tej sesji. Następnie uruchom strażnika zapełnionego cwd z `references/refusal-protocol.md` (ostrzeż i potwierdź, jeśli cwd już zawiera odcisk palca w kształcie szablonu, taki jak `package.json`, `Cargo.toml`, `Gemfile`, `pyproject.toml` itp.).
 

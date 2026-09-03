@@ -81,16 +81,16 @@ Przeczytaj pliki projektu, aby zidentyfikować stos. Wykrywanie jest oparte na p
 
 **Źródła wykrywania według rodziny języków:**
 
-| Rodzina języków | Pliki znaczników | Co wyodrębnić |
-|---|---|---|
-| JS/TS | `package.json`, `tsconfig.json`, `next.config.*`, `astro.config.*`, `vite.config.*`, `svelte.config.*`, `nuxt.config.*`, `angular.json`, `.eslintrc*`, `prettier.config.*`, `jest.config.*`, `vitest.config.*`, `playwright.config.*` | Język (JS vs TS — obecność `tsconfig.json`), framework, narzędzie do budowania, runner testów, linter, formatter, menedżer pakietów (z pliku blokady: `package-lock.json` → npm, `yarn.lock` → yarn, `pnpm-lock.yaml` → pnpm, `bun.lockb` → bun) |
-| Python | `pyproject.toml`, `setup.py`, `setup.cfg`, `requirements.txt`, `Pipfile`, `poetry.lock`, `uv.lock` | Framework (Django, FastAPI, Flask — z zależności), sprawdzanie typów (mypy/pyright w zależnościach lub konfiguracji), runner testów (pytest/unittest), menedżer pakietów |
-| Rust | `Cargo.toml` | Edycja, zależności dla frameworka webowego (Actix, Axum, Rocket), framework testowy |
-| Go | `go.mod` | Wersja Go, framework webowy (Gin, Echo, Fiber, Chi, stdlib), framework testowy |
-| Ruby | `Gemfile` | Framework (Rails, Sinatra), wersja Ruby, sprawdzanie typów (Sorbet/RBS), framework testowy (RSpec, Minitest) |
-| PHP | `composer.json` | Framework (Laravel, Symfony), wersja PHP, sprawdzanie typów (PHPStan/Psalm), framework testowy (PHPUnit, Pest) |
-| .NET | `*.csproj`, `*.sln` | Framework (wersja .NET, ASP.NET), język (C#/F#), framework testowy (xUnit, NUnit) |
-| Dart | `pubspec.yaml` | Framework (Flutter, Dart server), framework testowy |
+| Rodzina języków | Pliki znaczników                                                                                                                                                                                                                      | Co wyodrębnić                                                                                                                                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| JS/TS           | `package.json`, `tsconfig.json`, `next.config.*`, `astro.config.*`, `vite.config.*`, `svelte.config.*`, `nuxt.config.*`, `angular.json`, `.eslintrc*`, `prettier.config.*`, `jest.config.*`, `vitest.config.*`, `playwright.config.*` | Język (JS vs TS — obecność `tsconfig.json`), framework, narzędzie do budowania, runner testów, linter, formatter, menedżer pakietów (z pliku blokady: `package-lock.json` → npm, `yarn.lock` → yarn, `pnpm-lock.yaml` → pnpm, `bun.lockb` → bun) |
+| Python          | `pyproject.toml`, `setup.py`, `setup.cfg`, `requirements.txt`, `Pipfile`, `poetry.lock`, `uv.lock`                                                                                                                                    | Framework (Django, FastAPI, Flask — z zależności), sprawdzanie typów (mypy/pyright w zależnościach lub konfiguracji), runner testów (pytest/unittest), menedżer pakietów                                                                         |
+| Rust            | `Cargo.toml`                                                                                                                                                                                                                          | Edycja, zależności dla frameworka webowego (Actix, Axum, Rocket), framework testowy                                                                                                                                                              |
+| Go              | `go.mod`                                                                                                                                                                                                                              | Wersja Go, framework webowy (Gin, Echo, Fiber, Chi, stdlib), framework testowy                                                                                                                                                                   |
+| Ruby            | `Gemfile`                                                                                                                                                                                                                             | Framework (Rails, Sinatra), wersja Ruby, sprawdzanie typów (Sorbet/RBS), framework testowy (RSpec, Minitest)                                                                                                                                     |
+| PHP             | `composer.json`                                                                                                                                                                                                                       | Framework (Laravel, Symfony), wersja PHP, sprawdzanie typów (PHPStan/Psalm), framework testowy (PHPUnit, Pest)                                                                                                                                   |
+| .NET            | `*.csproj`, `*.sln`                                                                                                                                                                                                                   | Framework (wersja .NET, ASP.NET), język (C#/F#), framework testowy (xUnit, NUnit)                                                                                                                                                                |
+| Dart            | `pubspec.yaml`                                                                                                                                                                                                                        | Framework (Flutter, Dart server), framework testowy                                                                                                                                                                                              |
 
 **Dodatkowe sygnały do sprawdzenia:**
 
@@ -116,6 +116,7 @@ Detected stack:
 Poproś o potwierdzenie:
 
 AskUserQuestion:
+
 - question: "Is this detection accurate? Anything missing or wrong?"
   header: "Stack"
   options:
@@ -123,7 +124,7 @@ AskUserQuestion:
     description: "Continue with this detected stack."
   - label: "Correct something"
     description: "I'll fix the detection before scoring."
-  multiSelect: false
+    multiSelect: false
 
 Jeśli "Correct something": zapytaj, który komponent poprawić, zastosuj nadpisanie w pamięci, kontynuuj.
 
@@ -183,24 +184,28 @@ Dla każdej niezaliczonej bramki, stwórz konkretną strategię kompensacji. Kom
 **Szablony kompensacji dla niezaliczonej bramki:**
 
 **Typowany: niezaliczone** →
+
 - Dodaj konwencję jawnych adnotacji typów do CLAUDE.md ("Cały nowy kod musi zawierać adnotacje typów na granicach funkcji")
 - Dodaj regułę walidacji na granicach ("Użyj Zod/Pydantic/JSON Schema na granicach API")
 - Jeśli Python: dodaj rekomendację konfiguracji mypy
 - Jeśli JS: dodaj ścieżkę migracji TypeScript lub podpowiedzi typów JSDoc
 
 **Oparty na konwencjach: niezaliczone** →
+
 - Udokumentuj konwencje struktury folderów w CLAUDE.md ("Trasy znajdują się w src/routes/, middleware w src/middleware/, ...")
 - Udokumentuj konwencje nazewnictwa ("Pliki: kebab-case, eksporty: PascalCase dla komponentów, camelCase dla funkcji")
 - Udokumentuj kolejność rejestracji middleware/pluginów
 - Udokumentuj wzorzec obsługi błędów
 
 **Popularny w danych treningowych: niezaliczone** →
+
 - Dodaj przykłady idiomów specyficznych dla frameworka do CLAUDE.md
 - Podlinkuj do oficjalnej dokumentacji w pliku instrukcji
 - Dodaj reguły "preferuj wzorzec X zamiast Y" dla wyborów specyficznych dla frameworka
 - Zauważ, że agent może potrzebować więcej wskazówek dla tego frameworka
 
 **Dobrze udokumentowany: niezaliczone** →
+
 - Przypnij wersję frameworka w pliku instrukcji
 - Dodaj linki do najlepszej dostępnej dokumentacji
 - Dołącz wbudowane przykłady typowych wzorców
@@ -229,6 +234,7 @@ test -f context/foundation/stack-assessment.md
 Jeśli plik istnieje, zapytaj:
 
 AskUserQuestion:
+
 - question: "context/foundation/stack-assessment.md already exists. How would you like to proceed?"
   header: "Collision"
   options:
@@ -238,7 +244,7 @@ AskUserQuestion:
     description: "Preserve history. New assessment lands at the next available version slot."
   - label: "Abort"
     description: "Exit without writing. The conversation assessment is preserved in chat only."
-  multiSelect: false
+    multiSelect: false
 
 Zbuduj plik wyjściowy:
 

@@ -43,12 +43,15 @@ Logowanie e-mail + hasło. Płaski model użytkownika — bez ról. Każdy zalog
 ## Success Criteria
 
 ### Primary
+
 - Działa pełny przepływ: loguję się → wpisuję „biedronka 87,50" → widzę propozycję (kwota/kategoria/data) → zatwierdzam → wydatek jest na liście → widzę sumę bieżącego miesiąca wg kategorii.
 
 ### Secondary
+
 - Autor używa aplikacji codziennie przez tydzień (miernik nawyku — tarcie wpisu jest realnie niskie).
 
 ### Guardrails
+
 - Prywatność danych: użytkownik nigdy nie widzi wydatków innego użytkownika.
 
 ## Timeline
@@ -83,6 +86,7 @@ Budżet: mvp_weeks: 2, hard_deadline: 2026-09-14, after_hours_only: true. Zakres
 - **Then** wydatek z kwotą 87,50, kategorią Żywność i dzisiejszą datą jest na liście, a suma bieżącego miesiąca rośnie
 
 #### Acceptance Criteria
+
 - Propozycja pokazuje kwotę, kategorię i datę przed zapisem; każde pole można poprawić
 - Zatwierdzony wydatek pojawia się na liście bieżącego miesiąca bez przeładowania strony
 - Suma miesiąca wg kategorii uwzględnia nowy wydatek

@@ -40,9 +40,9 @@ hints:
 
 ## Pre-scaffold verification
 
-| Signal      | Value                                                    | Severity | Notes                                                      |
-| ----------- | -------------------------------------------------------- | -------- | ---------------------------------------------------------- |
-| npm package | not run                                                  | n/a      | cmd_template zaczyna się od `git clone` — krok npm pominięty |
+| Signal      | Value                                                     | Severity | Notes                                                                                |
+| ----------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------ |
+| npm package | not run                                                   | n/a      | cmd_template zaczyna się od `git clone` — krok npm pominięty                         |
 | GitHub repo | przeprogramowani/10x-astro-starter last pushed 2026-08-22 | fresh    | z card.docs_url; 9 dni przed uruchomieniem (`gh` niedostępne, użyto GitHub REST API) |
 
 ## Scaffold log
@@ -95,27 +95,28 @@ Wszystkie HIGH: fix przez `npm audit fix`.
 
 ## Hints recorded but not acted on
 
-| Hint                    | Value               |
-| ----------------------- | ------------------- |
-| bootstrapper_confidence | first-class         |
-| quality_override        | false               |
-| path_taken              | standard            |
-| self_check_answers      | null                |
-| team_size               | solo                |
-| deployment_target       | cloudflare-pages    |
-| ci_provider             | github-actions      |
-| ci_default_flow         | auto-deploy-on-merge|
-| has_auth                | true                |
-| has_payments            | false               |
-| has_realtime            | false               |
-| has_ai                  | true                |
-| has_background_jobs     | false               |
+| Hint                    | Value                |
+| ----------------------- | -------------------- |
+| bootstrapper_confidence | first-class          |
+| quality_override        | false                |
+| path_taken              | standard             |
+| self_check_answers      | null                 |
+| team_size               | solo                 |
+| deployment_target       | cloudflare-pages     |
+| ci_provider             | github-actions       |
+| ci_default_flow         | auto-deploy-on-merge |
+| has_auth                | true                 |
+| has_payments            | false                |
+| has_realtime            | false                |
+| has_ai                  | true                 |
+| has_background_jobs     | false                |
 
 ## Next steps
 
 Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, your project is scaffolded and verified — happy hacking.
 
 Useful manual steps in the meantime:
+
 - `git init` (if you have not already) to start your own repo history.
 - Review any `.scaffold` siblings the conflict policy created and decide which version of each file to keep (here: `CLAUDE.md.scaffold`).
 - Address audit findings per your project's risk tolerance — the full breakdown is in this log. All 23 findings are fixable via `npm audit fix` (no semver-major bumps).

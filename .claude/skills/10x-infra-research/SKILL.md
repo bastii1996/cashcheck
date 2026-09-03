@@ -42,6 +42,7 @@ Jedynym rezultatem jest plik `context/foundation/infrastructure.md` — trzecia 
 ## Cele nieobjęte
 
 Ta umiejętność **nie** obejmuje:
+
 - Budowania obrazów Docker ani pisania Dockerfile'ów.
 - Konfigurowania potoków CI/CD.
 - Planowania poza zakresem MVP (prognozy kosztów średnioterminowych są w porządku; HA w wielu regionach wykracza poza zakres).
@@ -89,6 +90,7 @@ Zadaj użytkownikowi pięć pytań typu Tak / Nie / Nie wiem. Użyj narzędzia `
 **Pytanie 1**
 
 AskUserQuestion:
+
 - question: "Does your app require persistent server-side connections — WebSockets, long-polling, or background worker processes that must stay alive between requests?"
   header: "Platform constraints"
   options:
@@ -98,11 +100,12 @@ AskUserQuestion:
     description: "Request/response only — each request is stateless."
   - label: "Don't know"
     description: "I'm not sure yet."
-  multiSelect: false
+    multiSelect: false
 
 **Pytanie 2**
 
 AskUserQuestion:
+
 - question: "Is minimizing monthly cost the top priority at MVP stage, or is developer experience and speed of iteration more important?"
   header: "Trade-off preference"
   options:
@@ -112,11 +115,12 @@ AskUserQuestion:
     description: "I'll pay a reasonable amount for a smoother development loop."
   - label: "Don't know / roughly equal"
     description: "No strong preference."
-  multiSelect: false
+    multiSelect: false
 
 **Pytanie 3**
 
 AskUserQuestion:
+
 - question: "Do you or your team already have hands-on experience with any specific platform you'd feel comfortable deploying to?"
   header: "Existing familiarity"
   options:
@@ -130,11 +134,12 @@ AskUserQuestion:
     description: "Comfortable with hyperscaler infrastructure."
   - label: "No strong familiarity"
     description: "Open to whatever fits best."
-  multiSelect: false
+    multiSelect: false
 
 **Pytanie 4**
 
 AskUserQuestion:
+
 - question: "Do you expect the app to serve users globally (edge/CDN matters) or mainly from one region?"
   header: "Geographic reach"
   options:
@@ -144,11 +149,12 @@ AskUserQuestion:
     description: "All users are in one country / region."
   - label: "Don't know yet"
     description: "Not sure about target geography."
-  multiSelect: false
+    multiSelect: false
 
 **Pytanie 5**
 
 AskUserQuestion:
+
 - question: "Will the deployment need co-located managed services — database, object storage, queues — from the same platform, or are external providers fine?"
   header: "Service co-location"
   options:
@@ -158,7 +164,7 @@ AskUserQuestion:
     description: "I'll use separate services (e.g., Supabase, Upstash, Cloudflare R2)."
   - label: "Don't know yet"
     description: "Haven't decided on data layer yet."
-  multiSelect: false
+    multiSelect: false
 
 Zapisz wszystkie pięć odpowiedzi jako ograniczenia badawcze przed przejściem do Kroku 2.
 
@@ -168,14 +174,14 @@ Użyj subagentów do równoległego badania platform. Celem jest zebranie wystar
 
 **Pula kandydatów na platformy** (zbadaj je, a następnie oceń i zawęź):
 
-| Platforma | Podstawowy przypadek użycia |
-|---|---|
-| Cloudflare Workers + Pages | Edge-first, serverless JS/TS, globalny CDN |
-| Vercel | Frontend + funkcje serverless, natywny Next.js |
-| Netlify | Frontend + serverless, JAMstack, prymitywy formularzy/uwierzytelniania |
-| Fly.io | PaaS oparty na kontenerach, trwałe procesy, wiele regionów |
-| Railway | PaaS full-stack, bazy danych współlokowane, szybkie DX |
-| Render | Hosting kontenerów/statyczny, darmowy poziom, zadania cron |
+| Platforma                  | Podstawowy przypadek użycia                                            |
+| -------------------------- | ---------------------------------------------------------------------- |
+| Cloudflare Workers + Pages | Edge-first, serverless JS/TS, globalny CDN                             |
+| Vercel                     | Frontend + funkcje serverless, natywny Next.js                         |
+| Netlify                    | Frontend + serverless, JAMstack, prymitywy formularzy/uwierzytelniania |
+| Fly.io                     | PaaS oparty na kontenerach, trwałe procesy, wiele regionów             |
+| Railway                    | PaaS full-stack, bazy danych współlokowane, szybkie DX                 |
+| Render                     | Hosting kontenerów/statyczny, darmowy poziom, zadania cron             |
 
 Dla każdej platformy uruchom subagenta z ukierunkowanym zapytaniem badawczym. Uruchom wszystkie sześć równolegle:
 
@@ -207,21 +213,23 @@ Po zakończeniu pracy przez wszystkich subagentów, zsyntetyzuj ich ustalenia w 
 Oceń każdą zbadana platformę pod kątem pięciu kryteriów z `references/agent-friendly-criteria.md`. Najpierw zastosuj twarde filtry:
 
 **Twarde filtry** (platforma, która ich nie przejdzie, zostanie usunięta z listy skróconej):
+
 - Jeśli odpowiedź na pytanie 1 z wywiadu = "Tak (wymagane trwałe połączenia)" → usuń platformy, które nie mogą uruchamiać trwałych procesów (Netlify, Vercel tylko serverless).
 - Jeśli stos technologiczny używa środowiska uruchomieniowego nieobsługiwanego przez platformę → usuń tę platformę.
 
 **Punktacja** (Zaliczone / Częściowo / Nie zaliczone na kryterium):
 
-| Platforma | CLI-first | Managed/Serverless | Agent-readable docs | Stable deploy API | MCP / Integracja | Razem |
-|---|---|---|---|---|---|---|
-| Cloudflare | | | | | | |
-| Vercel | | | | | | |
-| Netlify | | | | | | |
-| Fly.io | | | | | | |
-| Railway | | | | | | |
-| Render | | | | | | |
+| Platforma  | CLI-first | Managed/Serverless | Agent-readable docs | Stable deploy API | MCP / Integracja | Razem |
+| ---------- | --------- | ------------------ | ------------------- | ----------------- | ---------------- | ----- |
+| Cloudflare |           |                    |                     |                   |                  |       |
+| Vercel     |           |                    |                     |                   |                  |       |
+| Netlify    |           |                    |                     |                   |                  |       |
+| Fly.io     |           |                    |                     |                   |                  |       |
+| Railway    |           |                    |                     |                   |                  |       |
+| Render     |           |                    |                     |                   |                  |       |
 
 Miękko waż kryteria według odpowiedzi z wywiadu:
+
 - Pytanie 2 "minimalizuj koszty" → karaj platformy z drogimi podstawowymi poziomami.
 - Pytanie 3 "istniejąca znajomość" → rozstrzygaj remisy na korzyść znanej platformy.
 - Pytanie 4 "globalny zasięg" → preferuj platformy edge-native.
@@ -265,6 +273,7 @@ Mentalnie zastosuj tę soczewkę i przedstaw 3-5 rzeczy, o których użytkownik 
 Po wszystkich trzech weryfikacjach krzyżowych, przedstaw użytkownikowi wyniki i zapytaj:
 
 AskUserQuestion:
+
 - question: "The anti-bias cross-check surfaced some risks for <Platform A>. How would you like to proceed?"
   header: "Cross-check result"
   options:
@@ -274,7 +283,7 @@ AskUserQuestion:
     description: "The risks are significant enough to prefer the second option."
   - label: "Swap to <Platform C> instead"
     description: "The risks are significant enough to prefer the third option."
-  multiSelect: false
+    multiSelect: false
 
 Zastosuj wybór użytkownika. Jeśli zmieni na B lub C, ponownie uruchom trzy weryfikacje krzyżowe dla nowego najlepszego wyboru i przedstaw wyniki (nie ma potrzeby pytać ponownie — zarejestruj i kontynuuj).
 
@@ -289,6 +298,7 @@ test -f context/foundation/infrastructure.md
 Jeśli plik istnieje, zapytaj:
 
 AskUserQuestion:
+
 - question: "context/foundation/infrastructure.md already exists. How would you like to proceed?"
   header: "Collision"
   options:
@@ -298,7 +308,7 @@ AskUserQuestion:
     description: "Preserve history. New file lands at the next available version slot."
   - label: "Abort"
     description: "Exit without writing. The recommendation is preserved in chat only."
-  multiSelect: false
+    multiSelect: false
 
 Zbuduj plik wyjściowy:
 
@@ -365,11 +375,11 @@ How the chosen platform actually operates day to day. One concrete answer per li
 
 ## Risk Register
 
-For each identified risk: name, the cross-check lens that surfaced it, likelihood, impact, and a concrete mitigation step. Tying every risk back to a lens makes the register auditable — a future reader can see *why* each item is on the list.
+For each identified risk: name, the cross-check lens that surfaced it, likelihood, impact, and a concrete mitigation step. Tying every risk back to a lens makes the register auditable — a future reader can see _why_ each item is on the list.
 
-| Risk | Source | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| <risk> | Devil's advocate / Pre-mortem / Unknown unknowns / Research finding | <L/M/H> | <L/M/H> | <concrete step> |
+| Risk   | Source                                                              | Likelihood | Impact  | Mitigation      |
+| ------ | ------------------------------------------------------------------- | ---------- | ------- | --------------- |
+| <risk> | Devil's advocate / Pre-mortem / Unknown unknowns / Research finding | <L/M/H>    | <L/M/H> | <concrete step> |
 
 ## Getting Started
 
@@ -378,6 +388,7 @@ For each identified risk: name, the cross-check lens that surfaced it, likelihoo
 ## Out of Scope
 
 The following were not evaluated in this research:
+
 - Docker image configuration
 - CI/CD pipeline setup
 - Production-scale architecture (multi-region, HA, DR)

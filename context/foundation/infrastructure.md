@@ -20,14 +20,14 @@ Cloudflare Workers is the only candidate that passes all five agent-friendliness
 
 ## Platform Comparison
 
-| Platform | CLI-first | Managed/serverless | Agent-readable docs | Stable deploy API | MCP / integration | Total |
-|---|---|---|---|---|---|---|
-| Cloudflare Workers | Pass | Pass | Pass | Pass | Pass | 5 Pass |
-| Vercel | Pass | Pass | Pass | Pass | Partial | 4 Pass, 1 Partial |
-| Netlify | Partial | Pass | Pass | Pass | Pass | 4 Pass, 1 Partial |
-| Render | Partial | Pass | Pass | Pass | Partial | 3 Pass, 2 Partial |
-| Railway | Partial | Pass | Pass | Partial | Pass | 3 Pass, 2 Partial |
-| Fly.io | Partial | Partial | Pass | Pass | Partial | 2 Pass, 3 Partial |
+| Platform           | CLI-first | Managed/serverless | Agent-readable docs | Stable deploy API | MCP / integration | Total             |
+| ------------------ | --------- | ------------------ | ------------------- | ----------------- | ----------------- | ----------------- |
+| Cloudflare Workers | Pass      | Pass               | Pass                | Pass              | Pass              | 5 Pass            |
+| Vercel             | Pass      | Pass               | Pass                | Pass              | Partial           | 4 Pass, 1 Partial |
+| Netlify            | Partial   | Pass               | Pass                | Pass              | Pass              | 4 Pass, 1 Partial |
+| Render             | Partial   | Pass               | Pass                | Pass              | Partial           | 3 Pass, 2 Partial |
+| Railway            | Partial   | Pass               | Pass                | Partial           | Pass              | 3 Pass, 2 Partial |
+| Fly.io             | Partial   | Partial            | Pass                | Pass              | Partial           | 2 Pass, 3 Partial |
 
 Per-platform notes:
 
@@ -85,16 +85,16 @@ Six months on, the decision reads as a mistake. The first crack appeared early: 
 
 ## Risk Register
 
-| Risk | Source | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| Prerender writes truncated HTML, exit code 0 | Devil's advocate (astro#17047) | M | H | After every build, assert `dist/` contains the expected pages and non-trivial byte sizes; if it recurs, set `prerenderEnvironment: 'node'` |
-| Auth state read from KV inside the eventual-consistency window | Devil's advocate / Unknown unknowns | M | H | Never read session state immediately after writing it; drive post-signin redirects from the response the sign-in endpoint already holds, not from a fresh session read |
-| Opaque 500s hide the real parsing error | Devil's advocate (astro#15860) | M | M | Wrap the parsing endpoint in explicit try/catch that logs the caught error before returning; verify it appears in `wrangler tail` |
-| 4 unpatched advisories, incl. Astro XSS, from staying on Astro 6 | Research finding | M | M | Accepted deliberately (Astro 7 upgrade deferred past MVP). The XSS path is unescaped spread-attribute names — do not use spread props on user-controlled attributes; revisit the upgrade after delivery |
-| 10 ms CPU per invocation kills a heavy request | Devil's advocate | L | M | Keep per-request work to I/O plus light JSON; if a request is killed, move parsing off the hot path rather than upgrading the plan |
-| Pages-targeted tutorials produce broken config | Unknown unknowns | H | L | Treat `@astrojs/cloudflare` docs plus this repo's `wrangler.jsonc` as the only configuration sources; ignore blog snippets mentioning Pages |
-| Deferred Astro 6 → 7 upgrade compounds over time | Pre-mortem | M | M | Record it as an open question now; re-evaluate immediately after MVP delivery rather than at the next forced bump |
-| Secrets drift across `.env`, `.dev.vars`, Workers secrets, GitHub secrets | Operational story | M | M | Change them in one pass across all four surfaces; treat `.env.example` as the authoritative list of required keys |
+| Risk                                                                      | Source                              | Likelihood | Impact | Mitigation                                                                                                                                                                                              |
+| ------------------------------------------------------------------------- | ----------------------------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prerender writes truncated HTML, exit code 0                              | Devil's advocate (astro#17047)      | M          | H      | After every build, assert `dist/` contains the expected pages and non-trivial byte sizes; if it recurs, set `prerenderEnvironment: 'node'`                                                              |
+| Auth state read from KV inside the eventual-consistency window            | Devil's advocate / Unknown unknowns | M          | H      | Never read session state immediately after writing it; drive post-signin redirects from the response the sign-in endpoint already holds, not from a fresh session read                                  |
+| Opaque 500s hide the real parsing error                                   | Devil's advocate (astro#15860)      | M          | M      | Wrap the parsing endpoint in explicit try/catch that logs the caught error before returning; verify it appears in `wrangler tail`                                                                       |
+| 4 unpatched advisories, incl. Astro XSS, from staying on Astro 6          | Research finding                    | M          | M      | Accepted deliberately (Astro 7 upgrade deferred past MVP). The XSS path is unescaped spread-attribute names — do not use spread props on user-controlled attributes; revisit the upgrade after delivery |
+| 10 ms CPU per invocation kills a heavy request                            | Devil's advocate                    | L          | M      | Keep per-request work to I/O plus light JSON; if a request is killed, move parsing off the hot path rather than upgrading the plan                                                                      |
+| Pages-targeted tutorials produce broken config                            | Unknown unknowns                    | H          | L      | Treat `@astrojs/cloudflare` docs plus this repo's `wrangler.jsonc` as the only configuration sources; ignore blog snippets mentioning Pages                                                             |
+| Deferred Astro 6 → 7 upgrade compounds over time                          | Pre-mortem                          | M          | M      | Record it as an open question now; re-evaluate immediately after MVP delivery rather than at the next forced bump                                                                                       |
+| Secrets drift across `.env`, `.dev.vars`, Workers secrets, GitHub secrets | Operational story                   | M          | M      | Change them in one pass across all four surfaces; treat `.env.example` as the authoritative list of required keys                                                                                       |
 
 ## Getting Started
 
@@ -107,6 +107,7 @@ Six months on, the decision reads as a mistake. The first crack appeared early: 
 ## Out of Scope
 
 The following were not evaluated in this research:
+
 - Docker image configuration
 - CI/CD pipeline setup
 - Production-scale architecture (multi-region, HA, DR)

@@ -15,6 +15,7 @@ metadata:
     - skill development
     - meta-skill
 ---
+
 # Wyjaśnienie Umiejętności
 
 Przeanalizuj umiejętność, aby zrozumieć jej mechanikę, uzasadnienie projektu i sposób budowania czegoś podobnego. Po wywołaniu, przeczytaj pliki źródłowe docelowej umiejętności i wygeneruj ustrukturyzowany raport, który wyjaśnia, jak działa umiejętność i dlaczego została tak zbudowana.
@@ -22,6 +23,7 @@ Przeanalizuj umiejętność, aby zrozumieć jej mechanikę, uzasadnienie projekt
 ## Wejście
 
 Użytkownik podaje nazwę umiejętności (np. `10x-plan`, `10x-shape`, `10x-new`). Zaakceptuj ją jako:
+
 - Samą nazwę: `10x-plan`
 - Nazwę z ukośnikiem: `/10x-plan`
 - Ścieżkę do pliku SKILL.md: `~/.claude/skills/10x-plan/SKILL.md`
@@ -46,9 +48,11 @@ Znajdź pliki źródłowe umiejętności:
    - Ścieżka podana przez użytkownika (jeśli podano pełną ścieżkę)
 
    Jeśli nie znaleziono, powiedz użytkownikowi:
+
    ```
    Nie mogłem znaleźć pliku SKILL.md dla "<name>". Podaj pełną ścieżkę do pliku umiejętności.
    ```
+
    Następnie czekaj.
 
 2. **Przeczytaj SKILL.md w całości** — bez obcinania, bez limitu/offsetu.
@@ -59,11 +63,11 @@ Znajdź pliki źródłowe umiejętności:
 
 Po przeczytaniu wszystkich plików źródłowych, wygeneruj poniższy raport. Dostosuj głębokość do złożoności umiejętności:
 
-| Rozmiar umiejętności | Głębokość |
-|--------------------|-----------|
-| Poniżej 150 linii (prosta) | Zwięzła — każda sekcja to 3-5 zdań. Pomiń sekcje, które nie mają zastosowania (np. proste umiejętności rzadko mają orkiestrację podagentów lub bramki samokontroli). |
-| 150-400 linii (średnia) | Standardowa — każda sekcja to krótki akapit. Omów wszystkie 7 sekcji. |
-| Powyżej 400 linii (złożona/orkiestrator) | Szczegółowa — tabela anatomii, konkretne odniesienia do linii, rozszerzona analiza mechaniki. Wszystkie 7 sekcji w całości. |
+| Rozmiar umiejętności                     | Głębokość                                                                                                                                                            |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Poniżej 150 linii (prosta)               | Zwięzła — każda sekcja to 3-5 zdań. Pomiń sekcje, które nie mają zastosowania (np. proste umiejętności rzadko mają orkiestrację podagentów lub bramki samokontroli). |
+| 150-400 linii (średnia)                  | Standardowa — każda sekcja to krótki akapit. Omów wszystkie 7 sekcji.                                                                                                |
+| Powyżej 400 linii (złożona/orkiestrator) | Szczegółowa — tabela anatomii, konkretne odniesienia do linii, rozszerzona analiza mechaniki. Wszystkie 7 sekcji w całości.                                          |
 
 Nie wypełniaj prostych umiejętności ogólnikowym tekstem. Umiejętność składająca się z 95 linii otrzymuje zwięzły, skoncentrowany raport. Orkiestrator składający się z 831 linii otrzymuje szczegółowe omówienie.
 
@@ -90,6 +94,7 @@ Następnie przejdź do każdej sekcji w całości:
 Odpowiedz: **"Dlaczego ta umiejętność istnieje?"**
 
 Wyciągnij z oświadczenia roli i sekcji "Kiedy używać / kiedy pominąć":
+
 - Jaki problem rozwiązuje ta umiejętność? Co działo się, zanim powstała?
 - Kiedy użytkownik powinien po nią sięgnąć? Jakie są sygnały wyzwalające?
 - Kiedy NIE powinien jej używać? Jaki jest niewłaściwy kontekst?
@@ -102,11 +107,13 @@ Nie opisuj tylko, co robi umiejętność — wyjaśnij, jaki ból usuwa.
 Odpowiedz: **"Gdzie ta umiejętność znajduje się w przepływie pracy?"**
 
 Wyciągnij z sekcji "Relacje z innymi umiejętnościami":
+
 - **Upstream**: Jakie pliki lub artefakty ta umiejętność oczekuje jako wejście? Jaka umiejętność je produkuje? (np. `/10x-shape` produkuje `shape-notes.md`, które `/10x-prd` konsumuje)
 - **Downstream**: Co ta umiejętność generuje? Jaka umiejętność konsumuje to dalej? Do jakiego pliku zapisuje na dysku?
 - **Model przekazywania**: Umiejętności komunikują się poprzez pliki na dysku, a nie poprzez pamięć. Każda umiejętność zapisuje artefakt, zatrzymuje się i odwołuje się do człowieka, zanim uruchomi się następna umiejętność. Wyjaśnij, jak ta umiejętność pasuje do tego łańcucha.
 
 Pokaż pozycję w łańcuchu wizualnie, gdy jest to przydatne:
+
 ```
 [umiejętność upstream] → artefakt wejściowy → TA UMIEJĘTNOŚĆ → artefakt wyjściowy → [umiejętność downstream]
 ```
@@ -116,17 +123,18 @@ Pokaż pozycję w łańcuchu wizualnie, gdy jest to przydatne:
 Odpowiedz: **"Jakie są sekcje tego SKILL.md i co każda z nich robi?"**
 
 Podziel SKILL.md na sekcje i dla każdej z nich zgłoś:
+
 - **Nazwa sekcji** i przybliżony zakres linii
 - **Co robi** — jedno zdanie
 - **Dlaczego tam jest** — co by się zepsuło lub pogorszyło, gdyby ta sekcja została usunięta
 
 Przedstaw w formie tabeli dla średnich i złożonych umiejętności:
 
-| Sekcja | Linie | Cel | Dlaczego to ważne |
-|---|---|---|---|
-| YAML frontmatter | 1-8 | Nazwa, opis, dozwolone narzędzia | `description` kontroluje, kiedy umiejętność się aktywuje; `allowed-tools` to twarda granica bezpieczeństwa |
-| Oświadczenie roli | 10-15 | Filozofia w jednym zdaniu | Ustawia behawioralną osobowość umiejętności |
-| ... | ... | ... | ... |
+| Sekcja            | Linie | Cel                              | Dlaczego to ważne                                                                                          |
+| ----------------- | ----- | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| YAML frontmatter  | 1-8   | Nazwa, opis, dozwolone narzędzia | `description` kontroluje, kiedy umiejętność się aktywuje; `allowed-tools` to twarda granica bezpieczeństwa |
+| Oświadczenie roli | 10-15 | Filozofia w jednym zdaniu        | Ustawia behawioralną osobowość umiejętności                                                                |
+| ...               | ...   | ...                              | ...                                                                                                        |
 
 Cel: odmitologizować "tysiące linii". Pokaż uczącemu się, że długa umiejętność to tak naprawdę N sekcji, każda z jasnym zadaniem. Całość jest mniej onieśmielająca niż części.
 
@@ -181,16 +189,19 @@ Odpowiedz: **"Co mogę zmienić i jak ryzykowne są poszczególne zmiany?"**
 Uporządkuj według poziomu trudności z 1-2 konkretnymi przykładami na poziom, specyficznymi dla analizowanej umiejętności:
 
 **Łatwe (niskie ryzyko, natychmiastowy efekt):**
+
 - Co zmienić: np. frazy wyzwalające w `description`, nagłówki sekcji szablonu, etykiety opcji pytań, formatowanie raportu
 - Przykład: "Aby dodać polskie frazy wyzwalające, edytuj pole `description` i dodaj 'stwórz plan' obok 'create plan'"
 - Co się zepsuje, jeśli popełnisz błąd: nic krytycznego — w najgorszym przypadku umiejętność aktywuje się w niewłaściwym czasie lub formatowanie wyjścia będzie wyglądać inaczej
 
 **Średnie (wymaga zrozumienia łańcucha):**
+
 - Co zmienić: np. kryteria bramki samokontroli, wymiary oceny, kategorie pytań, liczba podagentów
 - Przykład: "Aby dodać wymiar 'Bezpieczeństwo' do karty wyników przeglądu, dodaj go do listy wymiarów w krokach procesu i zaktualizuj szablon raportu"
 - Co się zepsuje, jeśli popełnisz błąd: umiejętność może generować niekompletne lub niespójne wyniki, ale nie zepsuje innych umiejętności w łańcuchu
 
 **Trudne (strukturalne, ryzyko zerwania kontraktów łańcucha):**
+
 - Co zmienić: np. lista `allowed-tools`, format pliku wyjściowego, nazewnictwo artefaktów, wartości cyklu życia statusu
 - Przykład: "Zmiana nazwy pliku wyjściowego z `plan.md` na `implementation-plan.md` zepsułaby `/10x-implement`, który szuka `plan.md`"
 - Co się zepsuje, jeśli popełnisz błąd: umiejętności downstream, które zależą od dokładnych nazw plików, nagłówków sekcji lub wartości statusu, zawiodą po cichu lub wygenerują błędne wyniki
@@ -202,6 +213,7 @@ Odpowiedz: **"Gdybym chciał zbudować własną wersję tej umiejętności, jak 
 Podaj praktyczną, krok po kroku ścieżkę konstrukcji. Zacznij prosto i rozwijaj — to jest progresywna podróż od "pustego pliku" do "działającej umiejętności".
 
 Zanim zagłębisz się w ręczne kroki, zwróć uwagę na dwa skróty:
+
 - **Podejście konwersacyjne**: Po prostu powiedz swojemu agentowi "zbudujmy umiejętność, która robi X" i iteruj nad SKILL.md razem w 3-4 rundach. To najszybsza ścieżka dla umiejętności osobistych.
 - **`/skill-creator`**: Meta-umiejętność Anthropic do budowania umiejętności ze strukturalnymi ocenami. Dostępna pod adresem `github.com/anthropics/skills/tree/main/skills/skill-creator`. Lepsza dla umiejętności współdzielonych lub zintegrowanych z łańcuchem, gdzie chcesz automatycznej weryfikacji.
 
@@ -210,6 +222,7 @@ Oba skróty generują ten sam SKILL.md — poniższe kroki wyjaśniają, co gene
 **Krok 1: Zacznij od promptu.** Zanim utworzysz plik umiejętności, napisz podstawową instrukcję jako zwykły prompt. Przetestuj ją w rozmowie. Czy generuje mniej więcej właściwy wynik? Iteruj, aż podstawowe zachowanie będzie działać.
 
 **Krok 2: Utwórz plik umiejętności.** Utwórz `<skill-name>/SKILL.md` w katalogu swoich umiejętności. Dodaj minimalny frontmatter:
+
 ```yaml
 ---
 name: <skill-name>
@@ -231,6 +244,7 @@ allowed-tools:
 **Krok 7: (W razie potrzeby) Dodaj integrację z łańcuchem.** Jeśli ta umiejętność jest częścią łańcucha, zdefiniuj wejście upstream (jaki plik czyta) i wyjście downstream (jaki plik zapisuje). Dodaj sekcję "Relacje z innymi umiejętnościami". Dodaj "STOP, do not chain" do barier ochronnych.
 
 **Krok 8: (W razie potrzeby) Dodaj zaawansowane wzorce.** Na podstawie tego, co demonstruje ta umiejętność, wspomnij, jakie zaawansowane wzorce uczący się mógłby dodać:
+
 - Orkiestracja podagentów (jeśli umiejętność tworzy agenty)
 - Skalowanie złożoności (jeśli umiejętność dostosowuje się do rozmiaru wejścia)
 - Bramki samokontroli (jeśli umiejętność waliduje własne wyjście)
@@ -240,6 +254,7 @@ allowed-tools:
 Dla każdego kroku, zanotuj, co analizowana umiejętność robi na tym poziomie, aby uczący się mógł zobaczyć korespondencję między krokami konstrukcji a gotowym produktem.
 
 **Częste błędy, których należy unikać:**
+
 - Rozpoczynanie od zaawansowanych wzorców, zanim podstawowe zachowanie będzie działać
 - Pisanie zbyt ogólnych barier ochronnych ("bądź ostrożny") zamiast konkretnych ("NIGDY nie automatycznie łącz z następną umiejętnością")
 - Zapominanie o sekcji "Czego ta umiejętność NIE robi" — rozszerzanie zakresu to najczęstszy tryb awarii umiejętności

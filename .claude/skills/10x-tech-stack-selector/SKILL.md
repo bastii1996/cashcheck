@@ -115,6 +115,7 @@ Priorytety PRD:
 Zadaj jedno potwierdzenie:
 
 AskUserQuestion:
+
 - question: "Czy te priorytety są poprawne, czy chcesz coś poprawić, zanim przejdziemy dalej?"
   header: "Priorytety"
   options:
@@ -124,7 +125,7 @@ AskUserQuestion:
     description: "Zapytam, które pole poprawić, a następnie zaktualizuję nadpisanie w pamięci (PRD na dysku pozostaje niezmienione)."
   - label: "Zatrzymaj — najpierw napraw PRD"
     description: "Wyjdź. Uruchom ponownie /10x-prd, aby naprawić priorytety, a następnie ponownie wywołaj /10x-tech-stack-selector."
-  multiSelect: false
+    multiSelect: false
 
 Jeśli "Popraw wartość": zapytaj, które pole, przechwyć nadpisanie, kontynuuj z nadpisaniem zastosowanym tylko dla tej sesji.
 
@@ -191,6 +192,7 @@ Jeśli plik nie istnieje, zapisz `context/foundation/tech-stack.md` z zatwierdzo
 Jeśli plik istnieje, zapytaj:
 
 AskUserQuestion:
+
 - question: "context/foundation/tech-stack.md już istnieje. Jak chcesz postąpić?"
   header: "Kolizja"
   options:
@@ -200,7 +202,7 @@ AskUserQuestion:
     description: "Zachowaj historię. Nowy wybór zostanie zapisany w następnym dostępnym miejscu tech-stack-vN.md."
   - label: "Przerwij"
     description: "Wyjdź bez zapisu. Uzasadnienie rozmowy zostanie zachowane tylko na czacie."
-  multiSelect: false
+    multiSelect: false
 
 Zalecaną wartością domyślną jest tutaj "Nadpisz", ponieważ selektor stosu technologicznego to jednorazowa decyzja dla projektu; wiele wersji jest zazwyczaj oznaką, że użytkownik ponownie rozważa, w takim przypadku utrata poprzedniego wyboru jest zamierzona. Zapis z wersjonowaniem jest wyjściem awaryjnym.
 
@@ -260,7 +262,6 @@ hints:
   has_ai: <bool>
   has_background_jobs: <bool>
 ---
-
 ## Dlaczego ten stos
 
 <jeden akapit, ≤ 200 słów>
