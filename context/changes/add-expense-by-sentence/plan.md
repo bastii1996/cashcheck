@@ -293,7 +293,7 @@ Baza jest pusta (zero tabel domenowych) — migracja czysto addytywna, bez backf
 #### Ręczne
 
 - [x] 1.5 Tabela + 4 polityki RLS widoczne w Dashboardzie — 0635307
-- [ ] 1.6 Wiersz testowy widoczny tylko dla właściciela
+- [x] 1.6 Wiersz testowy widoczny tylko dla właściciela
 
 ### Faza 2: Parsowanie — Workers AI + endpoint propozycji
 
@@ -326,12 +326,12 @@ Baza jest pusta (zero tabel domenowych) — migracja czysto addytywna, bez backf
 
 #### Automatyczne
 
-- [ ] 4.1 Build + inspekcja dist/ (strona /expenses w artefakcie)
-- [ ] 4.2 Deploy z bindingiem AI zakończony sukcesem
-- [ ] 4.3 Produkcyjne smoke-testy auth-gatingu przechodzą
-- [ ] 4.4 CI zielone po pushu
+- [x] 4.1 Build + inspekcja dist/ (strona /expenses w artefakcie)
+- [x] 4.2 Deploy z bindingiem AI zakończony sukcesem
+- [x] 4.3 Produkcyjne smoke-testy auth-gatingu przechodzą
+- [x] 4.4 CI zielone po pushu
 
 #### Ręczne
 
-- [ ] 4.5 Pełny przepływ US-01 na produkcji
-- [ ] 4.6 Brak błędów w wrangler tail podczas przepływu
+- [x] 4.5 Pełny przepływ US-01 na produkcji
+- [x] 4.6 Brak błędów w wrangler tail podczas przepływu
