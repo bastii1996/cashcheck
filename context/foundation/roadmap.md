@@ -37,11 +37,11 @@ Autor nie śledzi wydatków w ogóle, bo tarcie przy wpisie (formularze, kategor
 
 ## W skrócie
 
-| ID   | Change ID                | Wynik (użytkownik może …)                                     | Wymagania wstępne | Odnośniki PRD                         | Status   |
-| ---- | ------------------------ | ------------------------------------------------------------- | ----------------- | ------------------------------------- | -------- |
-| S-01 | add-expense-by-sentence  | dodać wydatek jednym zdaniem i zobaczyć go na liście miesiąca | —                 | FR-001, FR-002, FR-003, FR-004, US-01 | ready    |
-| S-02 | edit-delete-expense      | edytować i usunąć zapisany wydatek                            | S-01              | FR-005, FR-006                        | proposed |
-| S-03 | monthly-category-summary | zobaczyć sumę bieżącego miesiąca wg kategorii                 | S-01              | FR-007                                | proposed |
+| ID   | Change ID                | Wynik (użytkownik może …)                                     | Wymagania wstępne | Odnośniki PRD                         | Status      |
+| ---- | ------------------------ | ------------------------------------------------------------- | ----------------- | ------------------------------------- | ----------- |
+| S-01 | add-expense-by-sentence  | dodać wydatek jednym zdaniem i zobaczyć go na liście miesiąca | —                 | FR-001, FR-002, FR-003, FR-004, US-01 | in-progress |
+| S-02 | edit-delete-expense      | edytować i usunąć zapisany wydatek                            | S-01              | FR-005, FR-006                        | proposed    |
+| S-03 | monthly-category-summary | zobaczyć sumę bieżącego miesiąca wg kategorii                 | S-01              | FR-007                                | proposed    |
 
 ## Baza
 
@@ -73,7 +73,7 @@ Brak. Uwierzytelnianie i wdrożenie są obecne w bazie; praca nad warstwą danyc
   - Który dostawca/model wykonuje klasyfikację zdania i jakim kosztem? — Właściciel: użytkownik (decyzję proponuje badanie w planowaniu). Blok: nie.
   - Jaki jest ustalony zestaw kategorii wydatków? — Właściciel: użytkownik (planowanie proponuje domyślny zestaw do zatwierdzenia). Blok: nie.
 - **Ryzyko:** największy fragment kamienia milowego — trzymany w całości, bo klauzula „Then" US-01 wymaga, by zapisany wydatek był widoczny na liście; wydzielenie listy uniemożliwiłoby weryfikację przepływu od początku do końca. Przy zapisie obowiązuje reguła z lessons.md: przekierowanie po zapisie z odpowiedzi w ręku, nie ze świeżego odczytu magazynu.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-02: Użytkownik edytuje i usuwa wydatek
 
