@@ -9,7 +9,7 @@ main_goal: speed
 top_blocker: time
 milestone_id: usable-expense-tracker
 milestone_seq: 1
-milestone_status: open
+milestone_status: done
 ---
 
 # Mapa drogowa: CashCheck
@@ -20,7 +20,7 @@ milestone_status: open
 
 ## Kamień milowy
 
-**M-1: Działający tracker wydatków** — Status: otwarty
+**M-1: Działający tracker wydatków** — Status: done
 
 - **Cel:** Pełny przepływ Primary z PRD działa na produkcji: zalogowany użytkownik dodaje wydatek jednym zdaniem, poprawia lub zatwierdza propozycję, zarządza wpisami i widzi sumę bieżącego miesiąca wg kategorii.
 - **Materiały źródłowe:** `context/foundation/prd.md` (v1)
@@ -37,11 +37,11 @@ Autor nie śledzi wydatków w ogóle, bo tarcie przy wpisie (formularze, kategor
 
 ## W skrócie
 
-| ID   | Change ID                | Wynik (użytkownik może …)                                     | Wymagania wstępne | Odnośniki PRD                         | Status      |
-| ---- | ------------------------ | ------------------------------------------------------------- | ----------------- | ------------------------------------- | ----------- |
-| S-01 | add-expense-by-sentence  | dodać wydatek jednym zdaniem i zobaczyć go na liście miesiąca | —                 | FR-001, FR-002, FR-003, FR-004, US-01 | done        |
-| S-02 | edit-delete-expense      | edytować i usunąć zapisany wydatek                            | S-01              | FR-005, FR-006                        | in-progress |
-| S-03 | monthly-category-summary | zobaczyć sumę bieżącego miesiąca wg kategorii                 | S-01              | FR-007                                | in-progress |
+| ID   | Change ID                | Wynik (użytkownik może …)                                     | Wymagania wstępne | Odnośniki PRD                         | Status |
+| ---- | ------------------------ | ------------------------------------------------------------- | ----------------- | ------------------------------------- | ------ |
+| S-01 | add-expense-by-sentence  | dodać wydatek jednym zdaniem i zobaczyć go na liście miesiąca | —                 | FR-001, FR-002, FR-003, FR-004, US-01 | done   |
+| S-02 | edit-delete-expense      | edytować i usunąć zapisany wydatek                            | S-01              | FR-005, FR-006                        | done   |
+| S-03 | monthly-category-summary | zobaczyć sumę bieżącego miesiąca wg kategorii                 | S-01              | FR-007                                | done   |
 
 ## Baza
 
@@ -85,7 +85,7 @@ Brak. Uwierzytelnianie i wdrożenie są obecne w bazie; praca nad warstwą danyc
 - **Blokery:** —
 - **Niewiadome:** —
 - **Ryzyko:** formularz edycji naturalnie reużywa interfejsu poprawki propozycji z S-01 — sekwencjonowanie po S-01 zapobiega budowaniu tego samego formularza dwa razy.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-03: Użytkownik widzi podsumowanie miesiąca wg kategorii
 
@@ -97,7 +97,7 @@ Brak. Uwierzytelnianie i wdrożenie są obecne w bazie; praca nad warstwą danyc
 - **Blokery:** —
 - **Niewiadome:** —
 - **Ryzyko:** czysty odczyt danych z S-01 — najmniejszy fragment; sekwencjonowany po S-01 wyłącznie przez zależność od danych.
-- **Status:** in-progress
+- **Status:** done
 
 ## Przekazanie do backlogu
 
@@ -121,8 +121,10 @@ Brak. Uwierzytelnianie i wdrożenie są obecne w bazie; praca nad warstwą danyc
 
 ## Historia kamieni milowych
 
-(puste — pierwszy kamień milowy)
+- **M-1: Działający tracker wydatków** (`usable-expense-tracker`) — zamknięto 2026-09-03. Pełny przepływ Primary z PRD działa na produkcji: wpis zdaniem z propozycją do zatwierdzenia, edycja i usuwanie, żywe podsumowanie miesiąca wg kategorii; wszystkie 3 fragmenty done.
 
 ## Zrobione
 
 - **S-01: Użytkownik dodaje wydatek jednym zdaniem i widzi go na liście bieżącego miesiąca** — Zarchiwizowane 2026-09-03 → `context/archive/2026-09-02-add-expense-by-sentence/`. Lekcja: —.
+- **S-02: Użytkownik edytuje i usuwa wydatek** — Zarchiwizowane 2026-09-03 → `context/archive/2026-09-03-edit-delete-expense/`. Lekcja: —.
+- **S-03: Użytkownik widzi podsumowanie miesiąca wg kategorii** — Zarchiwizowane 2026-09-03 → `context/archive/2026-09-03-monthly-category-summary/`. Lekcja: —.

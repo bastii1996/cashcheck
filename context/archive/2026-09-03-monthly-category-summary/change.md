@@ -1,10 +1,10 @@
 ---
 change_id: monthly-category-summary
 title: Podsumowanie bieżącego miesiąca wg kategorii
-status: implemented
+status: archived
 created: 2026-09-03
 updated: 2026-09-03
-archived_at: null
+archived_at: 2026-09-03T07:54:42Z
 ---
 
 ## Notes
