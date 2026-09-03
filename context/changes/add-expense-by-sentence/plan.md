@@ -312,15 +312,15 @@ Baza jest pusta (zero tabel domenowych) — migracja czysto addytywna, bez backf
 
 #### Automatyczne
 
-- [x] 3.1 Lint + astro check + build przechodzą
-- [x] 3.2 /expenses bez sesji → redirect na signin
-- [x] 3.3 POST /api/expenses bez sesji → 401
+- [x] 3.1 Lint + astro check + build przechodzą — 2555c61
+- [x] 3.2 /expenses bez sesji → redirect na signin — 2555c61
+- [x] 3.3 POST /api/expenses bez sesji → 401 — 2555c61
 
 #### Ręczne
 
-- [x] 3.4 Pełny przepływ US-01 na dev bez przeładowania strony
-- [x] 3.5 Poprawka propozycji i uzupełnianie braków działa
-- [x] 3.6 Wygodne na ekranie mobilnym (375px)
+- [x] 3.4 Pełny przepływ US-01 na dev bez przeładowania strony — 2555c61
+- [x] 3.5 Poprawka propozycji i uzupełnianie braków działa — 2555c61
+- [x] 3.6 Wygodne na ekranie mobilnym (375px) — 2555c61
 
 ### Faza 4: Wdrożenie i weryfikacja produkcyjna
 

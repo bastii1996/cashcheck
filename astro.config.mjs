@@ -13,7 +13,9 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  adapter: cloudflare(),
+  // CI has no Cloudflare credentials; the AI binding's remote proxy would fail
+  // `astro sync`/`build` there. Locally the proxy uses the logged-in wrangler.
+  adapter: cloudflare({ platformProxy: { enabled: !process.env.CI } }),
   env: {
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
