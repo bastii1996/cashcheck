@@ -9,6 +9,10 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      # The Cloudflare AI binding always opens a remote session, even during
+      # astro sync/build — wrangler needs a token in non-interactive envs.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
