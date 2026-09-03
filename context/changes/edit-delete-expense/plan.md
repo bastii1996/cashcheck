@@ -102,8 +102,8 @@ Bez test runnera (reguła AGENTS.md) — curl/Node smoke na dev i produkcji + te
 
 #### Automatyczne
 
-- [x] 2.1 Lint + check + build + deploy przechodzą
-- [x] 2.2 Produkcyjne smoke (401 + cykl edycji/usunięcia) przechodzą
+- [x] 2.1 Lint + check + build + deploy przechodzą — 4fba2f5
+- [x] 2.2 Produkcyjne smoke (401 + cykl edycji/usunięcia) przechodzą — 4fba2f5
 - [ ] 2.3 CI zielone po pushu
 
 #### Ręczne

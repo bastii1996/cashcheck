@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   EXPENSE_CATEGORIES,
@@ -201,6 +201,19 @@ export default function ExpensesApp({ initialExpenses }: Props) {
     }
   }
 
+  // FR-007: month summary derived live from list state — grosze summed as
+  // integer cents so 0.1 + 0.2 artifacts never reach the UI.
+  const summary = useMemo(() => {
+    const cents = new Map<ExpenseCategory, number>();
+    for (const expense of expenses) {
+      cents.set(expense.category, (cents.get(expense.category) ?? 0) + Math.round(expense.amount * 100));
+    }
+    const rows = [...cents.entries()]
+      .map(([category, total]) => ({ category, total: total / 100 }))
+      .sort((a, b) => b.total - a.total);
+    return { rows, grandTotal: rows.reduce((sum, r) => sum + r.total, 0) };
+  }, [expenses]);
+
   const amountMissing = draft !== null && draft.amount.trim() === "";
   const categoryMissing = draft !== null && draft.category === "";
 
@@ -330,6 +343,30 @@ export default function ExpensesApp({ initialExpenses }: Props) {
         <p role="alert" className="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100">
           {error}
         </p>
+      )}
+
+      {expenses.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ten miesiąc wg kategorii</h2>
+          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+            <table className="w-full text-sm">
+              <tbody>
+                {summary.rows.map((row) => (
+                  <tr key={row.category} className="border-b border-white/5 last:border-0">
+                    <td className="py-1.5 text-blue-100/80">{row.category}</td>
+                    <td className="py-1.5 text-right font-medium text-white">{plnFormatter.format(row.total)}</td>
+                  </tr>
+                ))}
+                <tr className="border-t border-white/20">
+                  <td className="py-2 font-semibold tracking-wide text-blue-100/80 uppercase">Łącznie</td>
+                  <td className="py-2 text-right text-base font-bold text-white">
+                    {plnFormatter.format(summary.grandTotal)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
 
       <section className="flex flex-col gap-2">
