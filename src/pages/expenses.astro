@@ -9,17 +9,29 @@ const { user } = Astro.locals;
 // Current month window in Europe/Warsaw (workerd runs in UTC — see plan).
 const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
 const monthStart = `${today.slice(0, 7)}-01`;
+const [year, month] = today.split("-").map(Number);
+const nextMonthStart = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`;
 
 let expenses: Expense[] = [];
+let loadError = false;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (supabase) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("expenses")
     .select("*")
     .gte("expense_date", monthStart)
+    .lt("expense_date", nextMonthStart)
     .order("expense_date", { ascending: false })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) {
+    // eslint-disable-next-line no-console -- observability sink for wrangler tail
+    console.error("expenses: list query failed", error);
+    loadError = true;
+  }
   expenses = (data ?? []) as Expense[];
+} else {
+  loadError = true;
 }
 ---
 
@@ -44,6 +56,13 @@ if (supabase) {
           </button>
         </form>
       </header>
+      {
+        loadError && (
+          <p class="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+            Nie udało się wczytać wydatków — odśwież stronę lub spróbuj później.
+          </p>
+        )
+      }
       <ExpensesApp client:load initialExpenses={expenses} />
     </div>
   </div>

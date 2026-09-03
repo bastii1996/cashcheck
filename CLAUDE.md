@@ -2,55 +2,45 @@ Project rules live in @AGENTS.md — read it first. The block below is course-le
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
-## 10xDevs AI Toolkit — Moduł 2, Lekcja 2
+## 10xDevs AI Toolkit - Moduł 2, Lekcja 3
 
-Przekształć jeden element planu działania w pierwszy cykl implementacji za pomocą **łańcucha planowania zmian**:
+Przejrzyj kod wygenerowany przez AI przed scaleniem za pomocą **łańcucha przeglądu implementacji**:
 
 ```
-/10x-roadmap -> /10x-new -> /10x-plan -> /10x-plan-review -> /10x-implement
+/10x-implement -> /10x-impl-review -> triage -> (/10x-lesson | fix | skip | disagree)
 ```
 
-`/10x-new`, `/10x-plan`, `/10x-plan-review` i `/10x-implement` to główne tematy lekcji. `/10x-frame` i `/10x-research` nie są tutaj wymaganymi rytuałami; są to ścieżki eskalacji wprowadzone w następnej lekcji.
+`/10x-impl-review` to główny temat lekcji. Przegląd jest bramką jakości, a nie instrukcją do naprawienia każdego znalezionego problemu.
 
-### Router zadań — Od czego zacząć
+### Router zadań - Od czego zacząć
 
-| Umiejętność                                   | Użyj, gdy                                                                                                                                                                                                                                                                                       |
-| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Konfiguracja zmiany (główny temat lekcji)** |                                                                                                                                                                                                                                                                                                 |
-| `/10x-new <change-id>`                        | Wybrałeś element planu działania i potrzebujesz stabilnego folderu zmian. Tworzy `context/changes/<change-id>/change.md`, dzięki czemu planowanie, implementacja, postęp, commity i późniejsza recenzja mają jedną tożsamość. Użyj PO wyborze planu działania, PRZED `/10x-plan`.               |
-| **Planowanie (główny temat lekcji)**          |                                                                                                                                                                                                                                                                                                 |
-| `/10x-plan <change-id>`                       | Masz folder zmian i potrzebujesz planu implementacji do recenzji. Odczytuje kontekst planu działania, dokumenty podstawowe, dowody z bazy kodu i wszelkie istniejące notatki o zmianach; zapisuje `plan.md` i `plan-brief.md` z fazami, kontraktami plików, kryteriami sukcesu i `## Progress`. |
-| **Gotowość planu (główny temat lekcji)**      |                                                                                                                                                                                                                                                                                                 |
-| `/10x-plan-review <change-id>`                | Masz `plan.md` i potrzebujesz lekkiej kontroli gotowości przed kodowaniem. Użyj jej, aby wychwycić brakujący stan końcowy, słabe kontrakty, źle sformułowany postęp, dryf zakresu lub martwe punkty, zanim rozpoczną się zmiany w kodzie.                                                       |
-| **Implementacja (główny temat lekcji)**       |                                                                                                                                                                                                                                                                                                 |
-| `/10x-implement <change-id> phase <n>`        | Masz zatwierdzony plan i chcesz wykonać jedną fazę z weryfikacją, ręczną bramką, rytuałem commitowania i zapisem SHA do `## Progress`.                                                                                                                                                          |
-| **Zamknięcie cyklu życia**                    |                                                                                                                                                                                                                                                                                                 |
-| `/10x-archive <change-id>`                    | Zmiana została scalona lub celowo zamknięta. Przenieś ją z aktywnego `context/changes/` do stanu archiwum.                                                                                                                                                                                      |
+| Umiejętność                             | Użyj, gdy                                                                                                                                                                                                                                                                 |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Przegląd kodu (główny temat lekcji)** |                                                                                                                                                                                                                                                                           |
+| `/10x-impl-review <change-id>`          | Zaimplementowałeś kod i chcesz przeprowadzić ustrukturyzowany przegląd przed scaleniem. Umiejętność sprawdza zgodność z planem, dyscyplinę zakresu, bezpieczeństwo i jakość, architekturę, spójność wzorców i kryteria sukcesu, a następnie przedstawia wyniki do triażu. |
+| **Powtarzający się wynik lekcji**       |                                                                                                                                                                                                                                                                           |
+| `/10x-lesson`                           | Znaleziony problem ujawnia powtarzającą się regułę projektu lub wzorzec błędu agenta. Zapisz go w `context/foundation/lessons.md` zamiast traktować jako jednorazową notatkę.                                                                                             |
 
-### Jak działa przekazywanie w łańcuchu
+### Dyscyplina triażu
 
-- `/10x-new` tworzy trwałą tożsamość zmiany.
-- `/10x-plan` przekształca tę tożsamość w kontrakt implementacyjny.
-- `/10x-plan-review` sprawdza plan, zanim agent zmodyfikuje kod.
-- `/10x-implement` wykonuje jedną zaplanowaną fazę, weryfikuje, prosi o ręczne potwierdzenie w razie potrzeby, commituje i rejestruje postęp.
+- Ważność mówi, jak zły jest problem. Wpływ mówi, jak ważna jest decyzja teraz.
+- Prawidłowe wyniki: napraw teraz, napraw inaczej, pomiń, zaakceptuj jako ryzyko, zapisz jako powtarzającą się regułę (`/10x-lesson`), nie zgadzam się.
+- Napraw krytyczne problemy. Nie marnuj godzin na obserwacje o niskim wpływie tylko dlatego, że agent je znalazł.
+- Świadome pomijanie problemów o niskim wpływie jest prawidłowym wynikiem przeglądu, a nie zaniedbaniem.
+- Jeśli nie zgadzasz się z problemem, zapisz dlaczego. Błędne rozumowanie agenta również jest sygnałem.
 
-### Granice lekcji
+### Granice przeglądu
 
-- Plan jest domyślnym routerem po wyborze planu działania. Zacznij od `/10x-plan`, chyba że problem jest niejasny lub blokują go zewnętrzne dowody.
-- Nie uruchamiaj `/10x-frame + /10x-research` jako ceremonii dla każdej zmiany.
-- Nie przekształcaj tej lekcji w pełną, kompleksową budowę produktu. Punkt kontrolny z zaplanowanym i częściowo lub w pełni zaimplementowanym strumieniem jest ważny.
-- Przegląd kodu zaimplementowanej różnicy należy do Lekcji 3 za pośrednictwem `/10x-impl-review`.
-- Zamknięcie cyklu życia za pomocą `/10x-archive` po scaleniu zmiany lub jej celowym zamknięciu.
+- Ta lekcja dotyczy przeglądu zaimplementowanego kodu. Nie tworzy planu, nie wykonuje nowych faz ani nie uczy przeglądu CI.
+- Strategia testowania i bramki jakości zostaną wprowadzone w Module 3.
+- Nie używaj `/10x-contract` jako wyniku triażu w tej lekcji.
 
 ### Ścieżki używane w tej lekcji
 
-- `context/foundation/roadmap.md` - plan działania upstream
-- `context/changes/<change-id>/change.md` - tożsamość zmiany
-- `context/changes/<change-id>/plan.md` - kontrakt implementacyjny
-- `context/changes/<change-id>/plan-brief.md` - skompresowane przekazanie
-- `context/foundation/lessons.md` - powtarzające się zasady i pułapki
-- `docs/reference/contract-surfaces.md` - rejestr nazw nośnych
+- `context/changes/<change-id>/plan.md` - oczekiwana umowa implementacji
+- `context/changes/<change-id>/reviews/` - wynik przeglądu
+- `context/foundation/lessons.md` - powtarzające się lekcje
 
-Umiejętności nie mogą zapisywać do `context/archive/`. Zarchiwizowane zmiany są niezmienne; jeśli rozwiązana ścieżka docelowa zaczyna się od `context/archive/`, przerwij z komunikatem: "Ta zmiana jest zarchiwizowana. Zamiast tego otwórz nową zmianę za pomocą `/10x-new`."
+Umiejętności nie mogą zapisywać do `context/archive/`. Zarchiwizowane zmiany są niezmienne; jeśli rozwiązana ścieżka docelowa zaczyna się od `context/archive/`, przerwij z komunikatem: "This change is archived. Open a new change with `/10x-new` instead."
 
 <!-- END @przeprogramowani/10x-cli -->
