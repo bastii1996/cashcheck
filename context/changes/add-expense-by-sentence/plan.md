@@ -285,28 +285,28 @@ Baza jest pusta (zero tabel domenowych) — migracja czysto addytywna, bez backf
 
 #### Automatyczne
 
-- [x] 1.1 Plik migracji istnieje zgodnie z konwencją nazw
-- [x] 1.2 `npx astro check` przechodzi
-- [x] 1.3 `npm run lint` przechodzi
-- [x] 1.4 REST bez sesji zwraca `[]` (RLS aktywny)
+- [x] 1.1 Plik migracji istnieje zgodnie z konwencją nazw — 0635307
+- [x] 1.2 `npx astro check` przechodzi — 0635307
+- [x] 1.3 `npm run lint` przechodzi — 0635307
+- [x] 1.4 REST bez sesji zwraca `[]` (RLS aktywny) — 0635307
 
 #### Ręczne
 
-- [x] 1.5 Tabela + 4 polityki RLS widoczne w Dashboardzie
+- [x] 1.5 Tabela + 4 polityki RLS widoczne w Dashboardzie — 0635307
 - [ ] 1.6 Wiersz testowy widoczny tylko dla właściciela
 
 ### Faza 2: Parsowanie — Workers AI + endpoint propozycji
 
 #### Automatyczne
 
-- [ ] 2.1 Lint + astro check przechodzą
-- [ ] 2.2 POST /api/expenses/parse bez sesji → 401
-- [ ] 2.3 „biedronka 87,50" → poprawna propozycja (kwota/kategoria/data)
+- [x] 2.1 Lint + astro check przechodzą
+- [x] 2.2 POST /api/expenses/parse bez sesji → 401
+- [x] 2.3 „biedronka 87,50" → poprawna propozycja (kwota/kategoria/data)
 
 #### Ręczne
 
-- [ ] 2.4 „paliwo 200 zł wczoraj" → Transport, wczorajsza data
-- [ ] 2.5 „kawa" → propozycja z brakami, bez błędu HTTP
+- [x] 2.4 „paliwo 200 zł wczoraj" → Transport, wczorajsza data
+- [x] 2.5 „kawa" → propozycja z brakami, bez błędu HTTP
 
 ### Faza 3: UI + zapis — strona /expenses z wyspą React
 
