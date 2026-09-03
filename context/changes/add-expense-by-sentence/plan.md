@@ -299,28 +299,28 @@ Baza jest pusta (zero tabel domenowych) — migracja czysto addytywna, bez backf
 
 #### Automatyczne
 
-- [x] 2.1 Lint + astro check przechodzą
-- [x] 2.2 POST /api/expenses/parse bez sesji → 401
-- [x] 2.3 „biedronka 87,50" → poprawna propozycja (kwota/kategoria/data)
+- [x] 2.1 Lint + astro check przechodzą — ef5b1f2
+- [x] 2.2 POST /api/expenses/parse bez sesji → 401 — ef5b1f2
+- [x] 2.3 „biedronka 87,50" → poprawna propozycja (kwota/kategoria/data) — ef5b1f2
 
 #### Ręczne
 
-- [x] 2.4 „paliwo 200 zł wczoraj" → Transport, wczorajsza data
-- [x] 2.5 „kawa" → propozycja z brakami, bez błędu HTTP
+- [x] 2.4 „paliwo 200 zł wczoraj" → Transport, wczorajsza data — ef5b1f2
+- [x] 2.5 „kawa" → propozycja z brakami, bez błędu HTTP — ef5b1f2
 
 ### Faza 3: UI + zapis — strona /expenses z wyspą React
 
 #### Automatyczne
 
-- [ ] 3.1 Lint + astro check + build przechodzą
-- [ ] 3.2 /expenses bez sesji → redirect na signin
-- [ ] 3.3 POST /api/expenses bez sesji → 401
+- [x] 3.1 Lint + astro check + build przechodzą
+- [x] 3.2 /expenses bez sesji → redirect na signin
+- [x] 3.3 POST /api/expenses bez sesji → 401
 
 #### Ręczne
 
-- [ ] 3.4 Pełny przepływ US-01 na dev bez przeładowania strony
-- [ ] 3.5 Poprawka propozycji i uzupełnianie braków działa
-- [ ] 3.6 Wygodne na ekranie mobilnym (375px)
+- [x] 3.4 Pełny przepływ US-01 na dev bez przeładowania strony
+- [x] 3.5 Poprawka propozycji i uzupełnianie braków działa
+- [x] 3.6 Wygodne na ekranie mobilnym (375px)
 
 ### Faza 4: Wdrożenie i weryfikacja produkcyjna
 

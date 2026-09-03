@@ -1,0 +1,273 @@
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  EXPENSE_CATEGORIES,
+  type CreateExpenseCommand,
+  type Expense,
+  type ExpenseCategory,
+  type ExpenseProposal,
+} from "@/types";
+
+interface Props {
+  initialExpenses: Expense[];
+}
+
+interface ProposalDraft {
+  amount: string;
+  category: ExpenseCategory | "";
+  expenseDate: string;
+  description: string;
+  parseError: boolean;
+}
+
+const plnFormatter = new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" });
+const dateFormatter = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long" });
+
+const inputClass =
+  "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2.5 text-white placeholder-blue-100/40 focus:border-blue-300/60 focus:outline-none";
+
+function formatDay(isoDate: string): string {
+  const parsed = Date.parse(`${isoDate}T00:00:00`);
+  return Number.isNaN(parsed) ? isoDate : dateFormatter.format(new Date(parsed));
+}
+
+export default function ExpensesApp({ initialExpenses }: Props) {
+  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
+  const [sentence, setSentence] = useState("");
+  const [busy, setBusy] = useState<"parse" | "save" | null>(null);
+  const [draft, setDraft] = useState<ProposalDraft | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleParse(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!sentence.trim() || busy) {
+      return;
+    }
+    setBusy("parse");
+    setError(null);
+    try {
+      const res = await fetch("/api/expenses/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sentence: sentence.trim() }),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const payload: unknown = await res.json();
+      const proposal = payload as ExpenseProposal;
+      setDraft({
+        amount: proposal.amount === null ? "" : String(proposal.amount),
+        category: proposal.category ?? "",
+        expenseDate: proposal.expense_date,
+        description: proposal.description,
+        parseError: proposal.parse_error,
+      });
+    } catch {
+      setError("Nie udało się połączyć z serwerem — spróbuj ponownie.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!draft || busy) {
+      return;
+    }
+    const amount = Number.parseFloat(draft.amount.replace(",", "."));
+    if (!Number.isFinite(amount) || amount <= 0 || !draft.category || !draft.expenseDate) {
+      setError("Uzupełnij podświetlone pola przed zapisem.");
+      return;
+    }
+    setBusy("save");
+    setError(null);
+    const command: CreateExpenseCommand = {
+      amount: Math.round(amount * 100) / 100,
+      category: draft.category,
+      expense_date: draft.expenseDate,
+      description: draft.description.trim() || sentence.trim(),
+    };
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(command),
+      });
+      if (res.status !== 201) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      // Lessons rule: update the list from the response in hand, never re-read.
+      const payload: unknown = await res.json();
+      const saved = payload as Expense;
+      setExpenses((prev) => [saved, ...prev]);
+      setDraft(null);
+      setSentence("");
+    } catch {
+      setError("Zapis nie powiódł się — spróbuj ponownie.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const amountMissing = draft !== null && draft.amount.trim() === "";
+  const categoryMissing = draft !== null && draft.category === "";
+
+  return (
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
+      <form onSubmit={handleParse} className="flex flex-col gap-3 sm:flex-row">
+        <label htmlFor="sentence" className="sr-only">
+          Opisz wydatek jednym zdaniem
+        </label>
+        <input
+          id="sentence"
+          type="text"
+          value={sentence}
+          onChange={(e) => {
+            setSentence(e.target.value);
+          }}
+          placeholder='np. "biedronka 87,50" albo "paliwo 200 zł wczoraj"'
+          maxLength={300}
+          autoFocus
+          className={cn(inputClass, "flex-1 text-base")}
+        />
+        <button
+          type="submit"
+          disabled={busy !== null || !sentence.trim()}
+          className="rounded-lg bg-blue-500/80 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
+        >
+          {busy === "parse" ? "Analizuję…" : "Dodaj"}
+        </button>
+      </form>
+
+      {draft && (
+        <form
+          onSubmit={handleSave}
+          className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl"
+        >
+          <h2 className="text-lg font-semibold">Propozycja — sprawdź i zapisz</h2>
+          {draft.parseError && (
+            <p className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+              Nie udało się przetworzyć zdania — uzupełnij pola ręcznie.
+            </p>
+          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <label className="flex flex-col gap-1 text-sm text-blue-100/80">
+              Kwota (zł)
+              <input
+                type="text"
+                inputMode="decimal"
+                value={draft.amount}
+                onChange={(e) => {
+                  setDraft({ ...draft, amount: e.target.value });
+                }}
+                placeholder="0,00"
+                className={cn(inputClass, amountMissing && "border-red-400/70 ring-1 ring-red-400/50")}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-blue-100/80">
+              Kategoria
+              <select
+                value={draft.category}
+                onChange={(e) => {
+                  setDraft({ ...draft, category: e.target.value as ExpenseCategory | "" });
+                }}
+                className={cn(
+                  inputClass,
+                  "appearance-none [&>option]:text-slate-900",
+                  categoryMissing && "border-red-400/70 ring-1 ring-red-400/50",
+                )}
+              >
+                <option value="" disabled>
+                  Wybierz…
+                </option>
+                {EXPENSE_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-blue-100/80">
+              Data
+              <input
+                type="date"
+                value={draft.expenseDate}
+                onChange={(e) => {
+                  setDraft({ ...draft, expenseDate: e.target.value });
+                }}
+                className={cn(inputClass, "[color-scheme:dark]")}
+              />
+            </label>
+          </div>
+          <label className="flex flex-col gap-1 text-sm text-blue-100/80">
+            Opis
+            <input
+              type="text"
+              value={draft.description}
+              maxLength={300}
+              onChange={(e) => {
+                setDraft({ ...draft, description: e.target.value });
+              }}
+              className={inputClass}
+            />
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={busy !== null}
+              className="flex-1 rounded-lg bg-emerald-500/80 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+            >
+              {busy === "save" ? "Zapisuję…" : "Zapisz wydatek"}
+            </button>
+            <button
+              type="button"
+              disabled={busy !== null}
+              onClick={() => {
+                setDraft(null);
+                setError(null);
+              }}
+              className="rounded-lg border border-white/20 px-4 py-2.5 text-sm text-blue-100/80 transition-colors hover:bg-white/10"
+            >
+              Odrzuć
+            </button>
+          </div>
+        </form>
+      )}
+
+      {error && (
+        <p role="alert" className="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+          {error}
+        </p>
+      )}
+
+      <section className="flex flex-col gap-2">
+        <h2 className="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ten miesiąc</h2>
+        {expenses.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-blue-100/50">
+            Brak wydatków w tym miesiącu — dodaj pierwszy jednym zdaniem powyżej.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {expenses.map((expense) => (
+              <li
+                key={expense.id}
+                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-white">{expense.description}</p>
+                  <p className="text-xs text-blue-100/50">
+                    {formatDay(expense.expense_date)} · {expense.category}
+                  </p>
+                </div>
+                <p className="text-base font-semibold whitespace-nowrap text-white">
+                  {plnFormatter.format(expense.amount)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
