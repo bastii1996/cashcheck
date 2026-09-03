@@ -42,6 +42,24 @@ function buildSystemPrompt(today: string): string {
   ].join("\n");
 }
 
+function extractRawProposal(result: unknown): RawProposal {
+  if (result === null || typeof result !== "object" || !("response" in result)) {
+    return {};
+  }
+  const response: unknown = result.response;
+  if (typeof response === "string") {
+    try {
+      return JSON.parse(response) as RawProposal;
+    } catch {
+      return {};
+    }
+  }
+  if (response !== null && typeof response === "object") {
+    return response;
+  }
+  return {};
+}
+
 function normalizeAmount(raw: unknown): number | null {
   if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
     return Math.round(raw * 100) / 100;
@@ -93,7 +111,7 @@ export async function parseExpenseSentence(sentence: string): Promise<ExpensePro
   };
 
   try {
-    const result: { response?: unknown } = await env.AI.run(MODEL, {
+    const result: unknown = await env.AI.run(MODEL, {
       messages: [
         { role: "system", content: buildSystemPrompt(today) },
         { role: "user", content: sentence },
@@ -101,10 +119,7 @@ export async function parseExpenseSentence(sentence: string): Promise<ExpensePro
       response_format: { type: "json_schema", json_schema: PROPOSAL_JSON_SCHEMA },
     });
 
-    const raw =
-      typeof result.response === "string"
-        ? (JSON.parse(result.response) as RawProposal)
-        : ((result.response ?? {}) as RawProposal);
+    const raw = extractRawProposal(result);
 
     return {
       ...base,
