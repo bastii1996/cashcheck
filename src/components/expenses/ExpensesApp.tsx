@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   EXPENSE_CATEGORIES,
@@ -34,8 +34,12 @@ function formatDay(isoDate: string): string {
 export default function ExpensesApp({ initialExpenses }: Props) {
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [sentence, setSentence] = useState("");
-  const [busy, setBusy] = useState<"parse" | "save" | null>(null);
+  const [busy, setBusy] = useState<"parse" | "save" | "update" | "delete" | null>(null);
   const [draft, setDraft] = useState<ProposalDraft | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<ProposalDraft | null>(null);
+  const [deleteArmedId, setDeleteArmedId] = useState<string | null>(null);
+  const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleParse(e: React.SubmitEvent<HTMLFormElement>) {
@@ -106,6 +110,93 @@ export default function ExpensesApp({ initialExpenses }: Props) {
     } catch {
       setError("Zapis nie powiódł się — spróbuj ponownie.");
     } finally {
+      setBusy(null);
+    }
+  }
+
+  function startEdit(expense: Expense) {
+    setDeleteArmedId(null);
+    setEditingId(expense.id);
+    setEditDraft({
+      amount: String(expense.amount),
+      category: expense.category,
+      expenseDate: expense.expense_date,
+      description: expense.description,
+      parseError: false,
+    });
+  }
+
+  async function handleUpdate(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingId || !editDraft || busy) {
+      return;
+    }
+    const amount = Number.parseFloat(editDraft.amount.replace(",", "."));
+    if (!Number.isFinite(amount) || amount <= 0 || !editDraft.category || !editDraft.expenseDate) {
+      setError("Uzupełnij poprawnie pola edytowanego wydatku.");
+      return;
+    }
+    setBusy("update");
+    setError(null);
+    const command: CreateExpenseCommand = {
+      amount: Math.round(amount * 100) / 100,
+      category: editDraft.category,
+      expense_date: editDraft.expenseDate,
+      description: editDraft.description.trim(),
+    };
+    try {
+      const res = await fetch(`/api/expenses/${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(command),
+      });
+      if (res.status !== 200) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      // Lessons rule: update the list from the response in hand, never re-read.
+      const payload: unknown = await res.json();
+      const updated = payload as Expense;
+      setExpenses((prev) =>
+        prev
+          .map((row) => (row.id === updated.id ? updated : row))
+          .sort((a, b) => b.expense_date.localeCompare(a.expense_date) || b.created_at.localeCompare(a.created_at)),
+      );
+      setEditingId(null);
+      setEditDraft(null);
+    } catch {
+      setError("Aktualizacja nie powiodła się — spróbuj ponownie.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (busy) {
+      return;
+    }
+    if (deleteArmedId !== id) {
+      // First tap arms the button; it disarms itself after 3 s (FR-006 guard).
+      setDeleteArmedId(id);
+      if (disarmTimer.current) {
+        clearTimeout(disarmTimer.current);
+      }
+      disarmTimer.current = setTimeout(() => {
+        setDeleteArmedId(null);
+      }, 3000);
+      return;
+    }
+    setBusy("delete");
+    setError(null);
+    try {
+      const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
+      if (res.status !== 204) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      setExpenses((prev) => prev.filter((row) => row.id !== id));
+    } catch {
+      setError("Usunięcie nie powiodło się — spróbuj ponownie.");
+    } finally {
+      setDeleteArmedId(null);
       setBusy(null);
     }
   }
@@ -249,22 +340,131 @@ export default function ExpensesApp({ initialExpenses }: Props) {
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {expenses.map((expense) => (
-              <li
-                key={expense.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-white">{expense.description}</p>
-                  <p className="text-xs text-blue-100/50">
-                    {formatDay(expense.expense_date)} · {expense.category}
-                  </p>
-                </div>
-                <p className="text-base font-semibold whitespace-nowrap text-white">
-                  {plnFormatter.format(expense.amount)}
-                </p>
-              </li>
-            ))}
+            {expenses.map((expense) =>
+              editingId === expense.id && editDraft ? (
+                <li key={expense.id} className="rounded-xl border border-blue-300/30 bg-white/10 px-4 py-3">
+                  <form onSubmit={handleUpdate} className="flex flex-col gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <label className="flex flex-col gap-1 text-xs text-blue-100/70">
+                        Kwota (zł)
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={editDraft.amount}
+                          onChange={(e) => {
+                            setEditDraft({ ...editDraft, amount: e.target.value });
+                          }}
+                          className={inputClass}
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1 text-xs text-blue-100/70">
+                        Kategoria
+                        <select
+                          value={editDraft.category}
+                          onChange={(e) => {
+                            setEditDraft({ ...editDraft, category: e.target.value as ExpenseCategory });
+                          }}
+                          className={cn(inputClass, "appearance-none [&>option]:text-slate-900")}
+                        >
+                          {EXPENSE_CATEGORIES.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="flex flex-col gap-1 text-xs text-blue-100/70">
+                        Data
+                        <input
+                          type="date"
+                          value={editDraft.expenseDate}
+                          onChange={(e) => {
+                            setEditDraft({ ...editDraft, expenseDate: e.target.value });
+                          }}
+                          className={cn(inputClass, "[color-scheme:dark]")}
+                        />
+                      </label>
+                    </div>
+                    <label className="flex flex-col gap-1 text-xs text-blue-100/70">
+                      Opis
+                      <input
+                        type="text"
+                        value={editDraft.description}
+                        maxLength={300}
+                        onChange={(e) => {
+                          setEditDraft({ ...editDraft, description: e.target.value });
+                        }}
+                        className={inputClass}
+                      />
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={busy !== null}
+                        className="flex-1 rounded-lg bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                      >
+                        {busy === "update" ? "Zapisuję…" : "Zapisz zmiany"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy !== null}
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditDraft(null);
+                        }}
+                        className="rounded-lg border border-white/20 px-3 py-2 text-sm text-blue-100/80 transition-colors hover:bg-white/10"
+                      >
+                        Anuluj
+                      </button>
+                    </div>
+                  </form>
+                </li>
+              ) : (
+                <li
+                  key={expense.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-white">{expense.description}</p>
+                    <p className="text-xs text-blue-100/50">
+                      {formatDay(expense.expense_date)} · {expense.category}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-base font-semibold whitespace-nowrap text-white">
+                      {plnFormatter.format(expense.amount)}
+                    </p>
+                    <button
+                      type="button"
+                      disabled={busy !== null}
+                      onClick={() => {
+                        startEdit(expense);
+                      }}
+                      aria-label={`Edytuj wydatek ${expense.description}`}
+                      className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs text-blue-100/80 transition-colors hover:bg-white/10"
+                    >
+                      Edytuj
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy !== null}
+                      onClick={() => {
+                        void handleDelete(expense.id);
+                      }}
+                      aria-label={`Usuń wydatek ${expense.description}`}
+                      className={cn(
+                        "rounded-lg border px-2.5 py-1.5 text-xs transition-colors",
+                        deleteArmedId === expense.id
+                          ? "border-red-400/70 bg-red-500/20 font-semibold text-red-100"
+                          : "border-white/15 text-blue-100/80 hover:bg-white/10",
+                      )}
+                    >
+                      {deleteArmedId === expense.id ? "Na pewno?" : "Usuń"}
+                    </button>
+                  </div>
+                </li>
+              ),
+            )}
           </ul>
         )}
       </section>

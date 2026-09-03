@@ -94,16 +94,16 @@ Bez test runnera (reguła AGENTS.md) — curl/Node smoke na dev i produkcji + te
 
 #### Automatyczne
 
-- [x] 1.1 Lint + astro check przechodzą
-- [x] 1.2 401/400/404 na dev zgodnie z kontraktem
-- [x] 1.3 PATCH i DELETE działają z sesją na dev
+- [x] 1.1 Lint + astro check przechodzą — bf65def
+- [x] 1.2 401/400/404 na dev zgodnie z kontraktem — bf65def
+- [x] 1.3 PATCH i DELETE działają z sesją na dev — bf65def
 
 ### Faza 2: UI + wdrożenie
 
 #### Automatyczne
 
-- [ ] 2.1 Lint + check + build + deploy przechodzą
-- [ ] 2.2 Produkcyjne smoke (401 + cykl edycji/usunięcia) przechodzą
+- [x] 2.1 Lint + check + build + deploy przechodzą
+- [x] 2.2 Produkcyjne smoke (401 + cykl edycji/usunięcia) przechodzą
 - [ ] 2.3 CI zielone po pushu
 
 #### Ręczne
