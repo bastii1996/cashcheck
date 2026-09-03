@@ -1,9 +1,9 @@
 ---
 change_id: add-expense-by-sentence
 title: Dodawanie wydatku jednym zdaniem z propozycją do zatwierdzenia
-status: implementing
+status: implemented
 created: 2026-09-02
-updated: 2026-09-02
+updated: 2026-09-03
 archived_at: null
 ---
 
