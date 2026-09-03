@@ -64,11 +64,11 @@ Bez test runnera — smoke Node na produkcji + ręczna weryfikacja żywych sum.
 
 #### Automatyczne
 
-- [x] 1.1 Lint + check + build + deploy przechodzą
-- [x] 1.2 Produkcyjna weryfikacja sekcji podsumowania (zgodność sum z listą)
-- [ ] 1.3 CI zielone po pushu
+- [x] 1.1 Lint + check + build + deploy przechodzą — 1a07168
+- [x] 1.2 Produkcyjna weryfikacja sekcji podsumowania (zgodność sum z listą) — 1a07168
+- [x] 1.3 CI zielone po pushu — 1a07168
 
 #### Ręczne
 
-- [ ] 1.4 Sumy żywe przy dodaniu/edycji/usunięciu bez przeładowania
-- [ ] 1.5 Widok mobilny wygodny
+- [x] 1.4 Sumy żywe przy dodaniu/edycji/usunięciu bez przeładowania — 1a07168
+- [x] 1.5 Widok mobilny wygodny — 1a07168
