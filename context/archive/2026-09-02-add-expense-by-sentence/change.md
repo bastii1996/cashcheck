@@ -1,10 +1,10 @@
 ---
 change_id: add-expense-by-sentence
 title: Dodawanie wydatku jednym zdaniem z propozycją do zatwierdzenia
-status: impl_reviewed
+status: archived
 created: 2026-09-02
 updated: 2026-09-03
-archived_at: null
+archived_at: 2026-09-03T07:38:04Z
 ---
 
 ## Notes
