@@ -2,90 +2,117 @@ Project rules live in @AGENTS.md — read it first. The block below is course-le
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
-## 10xDevs AI Toolkit — Moduł 3, Lekcja 1
+## 10xDevs AI Toolkit — Moduł 3, Lekcja 2
 
-Rozpocznij Moduł 3, tworząc **trwałą umowę jakościową opartą na ryzyku** przed napisaniem jakiegokolwiek testu — a następnie przeprowadzaj każdą fazę wdrożenia przez standardowy łańcuch zmian.
+Lekcja 2 dotyczy **pisania testów, które faktycznie chronią kod** — a nie tylko maksymalizują pokrycie. Problem wyroczni i antywzorce testowania na wyczucie wyjaśniają, dlaczego testy generowane przez LLM zawodzą na prawdziwym kodzie; kontrakt jakości oparty na ryzyku z Lekcji 1 jest rozwiązaniem.
 
 ```
-PRD + mapa drogowa + archiwum
+context/foundation/test-plan.md (§3 Wdrażanie etapowe)
+        │
+        ▼  (jedna faza wdrażania na raz)
+   /10x-research  ──►  research.md  (źródło wyroczni: co kod powinien robić, a nie co robi)
         │
         ▼
-   /10x-test-plan  ──►  context/foundation/test-plan.md  (strategia §1–§5 zamrożona + książka kucharska §6 rośnie)
+   /10x-plan  ──►  plan.md  (koszt × sygnał, dwuwarstwowa strategia, uporządkowane fazy)
         │
-        ▼  (jedna faza wdrożenia na raz, /clear między przekazaniami)
-   /10x-new ──► /10x-research ──► /10x-plan ──► /10x-implement
+        ▼
+   /10x-implement  or  /10x-tdd   ──►  działające testy + aktualizacja podręcznika §6
 ```
 
-`/10x-test-plan` to **stanowy orkiestrator**, a nie jednorazowy generator. Przy pierwszym uruchomieniu zapisuje fazowe wdrożenie do `context/foundation/test-plan.md`. Przy każdym kolejnym uruchomieniu ponownie wyprowadza stan z artefaktów na dysku i przedstawia następne przekazanie. Lekcja koncentruje się na **strategii i sekwencjonowaniu wdrożenia, a nie na konfiguracji**. Hooki, serwery MCP i YAML CI są konfigurowane w późniejszych lekcjach tego modułu.
+`/10x-tdd` to **opcjonalny tryb test-first**, a nie zamiennik dla łańcucha. Odczytuje ten sam `plan.md`, zapisuje do tej samej sekcji `## Progress` i obejmuje te same fazy co `/10x-implement`. Używaj go tylko wtedy, gdy potrafisz nazwać pierwsze nieudane twierdzenie przed napisaniem jakiegokolwiek kodu.
 
 ### Router zadań — Od czego zacząć
 
-| Umiejętność                                          | Kiedy jej użyć                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Strategia jakości jako plik reguł (fokus lekcji)** |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `/10x-test-plan`                                     | Masz PRD (i idealnie mapę drogową oraz kilka zarchiwizowanych fragmentów) i zamierzasz napisać pierwsze testy projektu, lub zauważyłeś, że testy generowane przez AI lądują na pomocnikach, podczas gdy krytyczne przepływy pozostają niepokryte. Pierwsze wywołanie uruchamia odkrywanie (PRD + mapa drogowa + archiwum + skan gorących punktów), 5-pytaniowy wywiad z użytkownikiem i przejście syntezy z obowiązkową kontrolą challengera, a następnie zapisuje `test-plan.md` w `context/foundation/` z mapą ryzyka (5–7 scenariuszy awarii), tabelą fazowego wdrożenia, tabelą stosu, tabelą bramek jakości, sekcją książki kucharskiej (`§6`, wypełnia się w miarę realizacji faz) i sekcją przestrzeni negatywnej (czego celowo nie testujemy). Kolejne wywołania posuwają wdrożenie o jedno przekazanie na raz. |
-| `/10x-test-plan --status`                            | `test-plan.md` już istnieje i chcesz uzyskać zwięzłą migawkę stanu wdrożenia — które fazy są `not started`, `change opened`, `researched`, `planned`, `implementing` lub `complete`, i jakie jest następne działanie. Nie wykonuje żadnej pracy; bezpieczne do uruchomienia w dowolnym momencie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `/10x-test-plan --refresh`                           | `test-plan.md` już istnieje i jedno z: pojawiło się nowe ryzyko z top-3 z mapy drogowej lub archiwum, data `checked:` narzędzia jest starsza niż trzy miesiące, zmienił się stos technologiczny projektu, lub §7 przestrzeń negatywna nie odpowiada już temu, w co wierzy zespół. Otwiera nowy folder zmian `test-plan-refresh-<RRRR-MM-DD>` zamiast edytować przewodnik na miejscu.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Umiejętność / Prompt         | Kiedy używać                                                                                                                                                                                                                                                                                                                                              |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/10x-research`              | Przed napisaniem jakiegokolwiek testu dla ryzyka. Badanie tworzy wyrocznię — jakie zachowanie musi udowodnić test — ze źródeł (PRD, tech-stack, dokumentacja), a nie z kształtu implementacji. Ujawnia również, czy ryzyko jest już pokryte, czy ma dwie oddzielne strony (jedną bezpieczną, jedną rzeczywistą).                                          |
+| `/10x-plan`                  | Badanie zakończone. Plan rozkłada ryzyko na uporządkowane fazy: najpierw konfiguracja środowiska, następnie reguły, które od niej zależą, następnie hermetyczne zaślepki dla błędów, których prawdziwa infrastruktura nie może wywołać, a następnie aktualizacja podręcznika. Każda faza nazywa zachowanie, które potwierdza, i regresję, którą wyłapuje. |
+| `/10x-implement`             | Domyślny wykonawca faz planu. Używaj do konfiguracji środowiska, istniejącego kodu, szkieletowania i każdej fazy, w której nie możesz zdefiniować czerwonego testu przed napisaniem kodu.                                                                                                                                                                 |
+| `/10x-tdd`                   | Opcjonalne. Używaj zamiast `/10x-implement` dla fazy, w której możesz nazwać pierwszy czerwony test w jednym zdaniu. Agent najpierw pisze nieudany test, następnie minimalny kod, aby go zazielenić, a następnie refaktoryzuje. Zatrzymuje się na twierdzeniu przed dotknięciem implementacji — ta pauza jest kluczowa.                                   |
+| prompt `m3l2-ad-hoc-testing` | Masz jeden plik i chcesz testów teraz, bez pełnego cyklu research→plan→implement. Prompt wymusza wyrocznię ze źródeł (czyta PRD + TECH_STACK przed twierdzeniem), twierdzenia behawioralne, przypadki brzegowe z ryzyka i tabelę regresji. Używaj go, wiedząc, że wymieniasz głębię na szybkość.                                                          |
 
-### Łańcuch wdrożenia — co dzieje się po napisaniu przewodnika
+### Kiedy używać `/10x-tdd` vs `/10x-implement`
 
-Tabela §3 _Phased Rollout_ przewodnika jest stanem orkiestratora. Dla każdego wiersza innego niż `complete` orkiestrator wybiera następne przekazanie na podstawie tego, które artefakty istnieją w `context/changes/<change-id>/`:
+Decydujące pytanie: _Czy potrafisz nazwać pierwszy czerwony test w jednym zdaniu?_
 
-| Stan na dysku                                       | Następne przekazanie                                                             | Status zmienia się na       |
-| --------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------- |
-| brak folderu zmian                                  | `/10x-new <change-id>`                                                           | `change opened`             |
-| tylko `change.md`                                   | `/10x-research` (z krótkim opisem ryzyk do zweryfikowania)                       | `researched`                |
-| `+ research.md`                                     | `/10x-plan` (z ograniczeniami koszt × sygnał + aktualizacja książki kucharskiej) | `planned`                   |
-| `+ plan.md` z oczekującymi elementami `## Progress` | `/10x-implement <change-id> phase <N>`                                           | `implementing` / `complete` |
-| `+ plan.md` w pełni `[x]`                           | Oznacz wiersz §3 jako `complete`; przejdź do następnego oczekującego wiersza     | —                           |
+Dobre warunki dla `/10x-tdd`:
 
-Każde przekazanie to **punkt STOP**. Orkiestrator kopiuje następne polecenie do schowka, prosi użytkownika o `/clear` i uruchomienie go, a następnie kończy działanie. Ponownie wywołaj `/10x-test-plan` (bez argumentów), aby przejść dalej.
+- "promuje wyłącznie drafty w stanie `accepted`, a `pending`/`rejected` nigdy nie trafiają do talii"
+- "zwraca `ok: true` i loguje `orphan_review_state`, gdy upsert stanu powtórek padnie w trakcie zapisu"
+- "zwraca 401, gdy użytkownik nie ma dostępu do kursu"
+- "resetuje interwał powtórki do jednego dnia, gdy ocena wynosi 0"
 
-### Reguły priorytetyzacji opartej na ryzyku
+Każde z nich nazywa obserwowalny wynik, a nie wewnętrzny szczegół. Jeśli nie potrafisz stworzyć takiego zdania, pozostań przy `/10x-implement` lub wróć do `/10x-research`.
 
-- Ryzyka to **scenariusze awarii w kategoriach użytkownika / biznesowych**, a nie nazwy testów. „Wylogowany użytkownik uzyskuje dostęp do płatnych treści za pomocą nieaktualnego tokena” to ryzyko; „testowanie formularza logowania” nie.
-- Od 5 do 7 ryzyk. Mniej jest zbyt ogólne; więcej sprawia, że priorytetyzacja jest bezużyteczna.
-- Wpływ i prawdopodobieństwo to oceny użytkownika/biznesu, a nie złożoność techniczna.
-- Każde ryzyko ma swoje źródło: sekcja PRD, zarchiwizowany fragment, wpis w mapie drogowej, pytanie z wywiadu Fazy 2, **katalog** gorących punktów z liczbą zmian, lub ograniczenie stosu technologicznego. Brak wymyślonych ryzyk.
-- **Sygnał, a nie wiedza.** §2 cytuje _dowody, które podniosły ryzyko_, nigdy plik jako „miejsce, w którym występuje awaria”. Kotwice plik:linia, nazwy funkcji, nazwy schematów i nazwy modułów są zabronione w §2 — należą do danych wyjściowych `/10x-research`, generowanych dla każdej fazy wdrożenia w stosunku do bieżącego kodu. Plan jest specyfikacją QA; nie jest audytem kodu.
-- Pokrycie nie jest metryką. **Pokrycie ryzyka** jest metryką.
+`/10x-tdd` **nie nadaje się** do: konfiguracji środowiska, konfiguracji CI/CD, dokumentacji, cienkiego okablowania, gdzie test po prostu przepisałby implementację, lub do eksploracji, gdzie nadal odkrywasz kontrakt.
 
-### Reguły mapowania dwuwarstwowego
+Możesz mieszać oba tryby w jednym planie:
 
-- Najpierw warstwa klasyczna: wygrywa najtańszy test, który daje prawdziwy sygnał. Promuj do e2e tylko wtedy, gdy żadna tańsza warstwa nie pokrywa ryzyka.
-- Druga warstwa natywna dla AI, i tylko tam, gdzie dodaje sygnał, którego klasyczne testy nie dają tanio.
-- Każdy wiersz natywny dla AI ma linię **„Kiedy NIE używać”**. Jeśli nie możesz jej napisać, usuń wiersz.
-- Każda nazwa narzędzia zawiera datę `checked: <RRRR-MM-DD>`. Nazwy narzędzi są przykładami kategorii, a nie rekomendacjami.
-- Obie warstwy muszą być niepuste w ostatecznym przewodniku, jeśli projekt tego wymaga. Tylko klasyczna to plan z 2020 roku; tylko natywna dla AI to szum. Fazy natywne dla AI nie są obowiązkowe — włącz je tylko wtedy, gdy brief uzasadniał je pod względem kosztu × sygnału.
+```
+/10x-implement <change-id> phase 1   # environment
+/10x-tdd       <change-id> phase 2   # contract (new code)
+/10x-tdd       <change-id> phase 3   # contract (API endpoint)
+/10x-implement <change-id> phase 4   # cookbook + plan sync
+```
 
-### Reguły bramek jakości
+Oba zapisują postęp do tej samej sekcji `## Progress` w `plan.md`.
 
-- Wymagane bramki (lint, typecheck, unit+integration, e2e na krytycznych przepływach) muszą odpowiadać rzeczywistym krokom CI. Jeśli wymagana bramka nie jest jeszcze podłączona, oznacz ją jako `required after §3 Phase <N>` i pozwól nazwanej fazie wdrożenia ją podłączyć.
-- Hook po edycji jest **zalecany lokalnie**, a nie jako substytut CI.
-- Wielomodalny przegląd wizualny jest **selektywny**, stosowany do 1–3 krytycznych ekranów, a nie do każdej strony.
-- Awaryjne rozwiązanie oparte na wizji (Anthropic Computer Use lub OpenAI CUA) jest zarezerwowane dla powierzchni niedostępnych dla DOM; drogie na akcję.
+### Dwuwarstwowa strategia testowania (koszt × sygnał)
 
-### Wzorce książki kucharskiej (§6) — wypełnia się z czasem
+Dla każdego ryzyka wybierz **najtańszy test, który daje prawdziwy sygnał**. Nie domyślnie do e2e "ponieważ jest najbezpieczniejszy" i nie gonić za procentem pokrycia.
 
-`test-plan.md` to zarówno fazowa strategia, jak i **rosnąca książka kucharska**. §6 zaczyna się jako miejsca docelowe (`TBD — see §3 Phase <N>`) i wypełnia się stopniowo — plan każdej fazy wdrożenia kończy się podfazą, która aktualizuje odpowiedni wpis w §6 (lokalizacja, nazewnictwo, test referencyjny, polecenie uruchomienia). Po zakończeniu Modułu 3, §6 staje się kanoniczną odpowiedzią na pytanie „jak dodać test dla X w tym projekcie?” — i to, co `/10x-tdd` czyta w Lekcji 2.
+| Warstwa                                                       | Kiedy używać                                                                                                           | Kiedy NIE używać                                                                                                                                    |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Integracja (prawdziwa baza danych / prawdziwa infrastruktura) | Reguła obejmuje ograniczenia bazy danych, kaskady, prawdziwy SQL lub unikalne ograniczenia, o których mock by skłamał. | Przepływy uwierzytelniania zabezpieczone przez RLS, które należą do oddzielnej fazy; wszystko, gdzie koszt konfiguracji przekracza wartość sygnału. |
+| Hermetyczne (klient zaślepki)                                 | Częściowe awarie, których prawdziwa infrastruktura nie może łatwo wywołać (np. druga operacja w sekwencji zawodzi).    | Reguły, które zależą od rzeczywistego stanu bazy danych — zaślepka skłamie na temat naruszeń ograniczeń i kaskad.                                   |
+
+Niemożliwa do atomowego zapisu sekwencja (wiele niezależnych operacji bez transakcji) oznacza: pisz testy hermetyczne dla gałęzi częściowych awarii, a nie testy integracyjne, które wymuszają błąd w środku sekwencji.
+
+### Reguły wyroczni
+
+- Wyrocznia — co kod _powinien_ robić — musi pochodzić ze źródeł: PRD, dokumentacji, ograniczeń stosu technologicznego, wiedzy dziedzinowej. Nie może pochodzić z czytania implementacji.
+- Jeśli implementacja ma błąd, skopiowanie jej wyniku jako oczekiwanej wartości tworzy test lustrzany, który przechodzi z błędem.
+- Gdy źródła nie rozwiązują jednoznacznie oczekiwanego zachowania, **zatrzymaj się i zapytaj**, zamiast zgadywać.
+- Zadaniem badań jest ujawnienie wyroczni przed napisaniem jakiegokolwiek testu.
+
+### Antywzorce testowania na wyczucie, których należy unikać
+
+| Antywzorzec              | Jak wygląda                                                                         | Co robić zamiast                                                                                                    |
+| ------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Implementacja lustrzana  | Twierdzenie oblicza oczekiwaną wartość za pomocą tej samej logiki co testowany kod. | Twierdź przeciwko wartości pochodzącej z wyroczni (PRD / reguła dziedzinowa), a nie z implementacji.                |
+| Tylko szczęśliwe ścieżki | Testy tylko przechodzą prawidłowe dane wejściowe; brak przypadków brzegowych.       | Dodaj co najmniej jeden przypadek brzegowy na ryzyko: `null`, pusty, błąd zależności, nieprawidłowe dane wejściowe. |
+| Redundantne kopie        | Sześć prawie identycznych testów sprawdzających tę samą nieobecność strażnika.      | Jeden sparametryzowany test (`it.each`) na właściwość; każdy test wyłapuje inną regresję.                           |
+
+### Testowanie mutacyjne (Stryker) — selektywna brama jakości
+
+Pokrycie mówi "ta linia została wykonana". Wynik mutacji mówi "czy test by zawiódł, gdybym zepsuł tę linię?". Używaj Strykera jako **selektywnej bramy** po fazie ryzyka, a nie jako bramy CI przy każdym commicie.
+
+Przebieg pracy:
+
+1. Testy przechodzą dla fazy ryzyka.
+2. Uruchom `npx stryker run --mutate "path/to/file.ts"` (zawęź zakres do zmienionego modułu).
+3. Otwórz raport HTML; znajdź ocalałe mutanty.
+4. Dla każdego ocalałego mutanta zadaj pytanie: "Czy ta zmiana zaszkodziłaby użytkownikowi lub firmie?"
+   - Tak → dodaj twierdzenie, które zabije mutanta.
+   - Nie (równoważny mutant lub zmiana kosmetyczna) → świadomie zignoruj.
+5. Nie dąż do 100% wyniku mutacji. Test, który przypina szczegóły implementacji, aby zabić kosmetycznego mutanta, sam w sobie jest testem na wyczucie.
+
+Brama integracyjna może pozostać **ad hoc** (nie przy każdym commicie), gdy uruchamianie lokalnej infrastruktury jest kosztowne. Zaznacz to odpowiednio w `test-plan.md §4`.
 
 ### Granice lekcji
 
-- Nie pisz kodu testowego. To jest Lekcja 2 (`/10x-tdd` i tworzenie testów jednostkowych).
-- Nie konfiguruj hooków, cyklu życia hooków ani hooków debugowania. To jest Lekcja 3.
+- Nie konfiguruj haków, cyklu życia haków ani haków debugowania. To jest Lekcja 3.
 - Nie konfiguruj serwerów MCP, API Playwright, kodu e2e ani kodu scenariuszy multimodalnych. To jest Lekcja 4.
 - Nie uruchamiaj przepływu pracy od błędu do poprawki do testu regresji. To jest Lekcja 5.
-- Nie twórz potoków CI/CD od podstaw ani nie pisz YAML GitHub Actions. Przewodnik nazywa bramki; konfiguracja jest własnością Modułu 1 Lekcji 5 i Modułu 2 Lekcji 5.
-- Nie testuj modeli multimodalnych. Cytuj kryteria (koszt, opóźnienie, przyjazność dla agenta), nigdy ranking.
-- Nie czytaj bazy kodu w celu zdobycia wiedzy (grafy wywołań, schematy, „który plik jest właścicielem tej awarii”). To jest zadanie `/10x-research`, dla każdej fazy wdrożenia.
+- Nie twórz potoków CI/CD od podstaw. To jest Moduł 1 Lekcja 5 / Moduł 2 Lekcja 5.
+- Nie uruchamiaj `/10x-test-plan`, aby zmienić strategię ryzyka. To jest Lekcja 1. Użyj `/10x-test-plan --status`, aby odczytać bieżący stan.
+- Nie pisz testów bez kroku badawczego, chyba że używasz promptu ad-hoc z pełną świadomością jego kompromisów.
 
 ### Ścieżki używane w tej lekcji
 
-- `context/foundation/test-plan.md` — umowa jakościowa tworzona i utrzymywana przez `/10x-test-plan`
-- `context/foundation/prd.md` — główne źródło ryzyka
-- `context/foundation/roadmap.md` — ważenie prawdopodobieństwa
-- `context/foundation/tech-stack.md` — dane wejściowe stosu (jeśli są obecne)
-- `context/archive/<change-id>/plan.md` — zaimplementowana powierzchnia ryzyka
-- `context/changes/<change-id>/` — folder zmian dla każdej fazy wdrożenia (jeden na wiersz w §3)
+- `context/foundation/test-plan.md` — stan wdrożenia §3; podręcznik §6 (uzupełniany w miarę realizacji faz)
+- `context/changes/<change-id>/research.md` — źródło wyroczni dla każdej fazy wdrożenia
+- `context/changes/<change-id>/plan.md` — uporządkowane fazy ze stanem wykonania `## Progress`
+- `.claude/prompts/m3l2-ad-hoc-testing.md` — prompt do testowania ad-hoc na poziomie pliku
 
 <!-- END @przeprogramowani/10x-cli -->
