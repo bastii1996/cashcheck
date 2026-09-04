@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { isInCurrentMonth } from "@/lib/services/expense-month";
 import {
   EXPENSE_CATEGORIES,
   type CreateExpenseCommand,
@@ -67,7 +68,9 @@ export default function ExpensesApp({ initialExpenses }: Props) {
         description: proposal.description,
         parseError: proposal.parse_error,
       });
-    } catch {
+    } catch (err) {
+      // eslint-disable-next-line no-console -- swallowed errors hide debugging evidence (m3l5 / OWASP A10)
+      console.error("expenses: parse request failed", err);
       setError("Nie udało się połączyć z serwerem — spróbuj ponownie.");
     } finally {
       setBusy(null);
@@ -107,7 +110,9 @@ export default function ExpensesApp({ initialExpenses }: Props) {
       setExpenses((prev) => [saved, ...prev]);
       setDraft(null);
       setSentence("");
-    } catch {
+    } catch (err) {
+      // eslint-disable-next-line no-console -- swallowed errors hide debugging evidence (m3l5 / OWASP A10)
+      console.error("expenses: save failed", err);
       setError("Zapis nie powiódł się — spróbuj ponownie.");
     } finally {
       setBusy(null);
@@ -163,7 +168,9 @@ export default function ExpensesApp({ initialExpenses }: Props) {
       );
       setEditingId(null);
       setEditDraft(null);
-    } catch {
+    } catch (err) {
+      // eslint-disable-next-line no-console -- swallowed errors hide debugging evidence (m3l5 / OWASP A10)
+      console.error("expenses: update failed", err);
       setError("Aktualizacja nie powiodła się — spróbuj ponownie.");
     } finally {
       setBusy(null);
@@ -193,7 +200,9 @@ export default function ExpensesApp({ initialExpenses }: Props) {
         throw new Error(`HTTP ${res.status}`);
       }
       setExpenses((prev) => prev.filter((row) => row.id !== id));
-    } catch {
+    } catch (err) {
+      // eslint-disable-next-line no-console -- swallowed errors hide debugging evidence (m3l5 / OWASP A10)
+      console.error("expenses: delete failed", err);
       setError("Usunięcie nie powiodło się — spróbuj ponownie.");
     } finally {
       setDeleteArmedId(null);
@@ -201,18 +210,22 @@ export default function ExpensesApp({ initialExpenses }: Props) {
     }
   }
 
+  // FR-007: the view is "this month" — state may hold rows saved/edited into
+  // another month (legal data, wrong bucket); they must not render or count.
+  const visibleExpenses = useMemo(() => expenses.filter((e) => isInCurrentMonth(e.expense_date)), [expenses]);
+
   // FR-007: month summary derived live from list state — grosze summed as
   // integer cents so 0.1 + 0.2 artifacts never reach the UI.
   const summary = useMemo(() => {
     const cents = new Map<ExpenseCategory, number>();
-    for (const expense of expenses) {
+    for (const expense of visibleExpenses) {
       cents.set(expense.category, (cents.get(expense.category) ?? 0) + Math.round(expense.amount * 100));
     }
     const rows = [...cents.entries()]
       .map(([category, total]) => ({ category, total: total / 100 }))
       .sort((a, b) => b.total - a.total);
     return { rows, grandTotal: rows.reduce((sum, r) => sum + r.total, 0) };
-  }, [expenses]);
+  }, [visibleExpenses]);
 
   const amountMissing = draft !== null && draft.amount.trim() === "";
   const categoryMissing = draft !== null && draft.category === "";
@@ -345,7 +358,7 @@ export default function ExpensesApp({ initialExpenses }: Props) {
         </p>
       )}
 
-      {expenses.length > 0 && (
+      {visibleExpenses.length > 0 && (
         <section className="flex flex-col gap-2">
           <h2 className="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ten miesiąc wg kategorii</h2>
           <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
@@ -371,13 +384,13 @@ export default function ExpensesApp({ initialExpenses }: Props) {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ten miesiąc</h2>
-        {expenses.length === 0 ? (
+        {visibleExpenses.length === 0 ? (
           <p className="rounded-xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-blue-100/50">
             Brak wydatków w tym miesiącu — dodaj pierwszy jednym zdaniem powyżej.
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {expenses.map((expense) =>
+            {visibleExpenses.map((expense) =>
               editingId === expense.id && editDraft ? (
                 <li key={expense.id} className="rounded-xl border border-blue-300/30 bg-white/10 px-4 py-3">
                   <form onSubmit={handleUpdate} className="flex flex-col gap-3">

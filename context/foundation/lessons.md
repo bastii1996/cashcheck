@@ -22,3 +22,10 @@
 - **Problem**: KV propaguje zapisy globalnie do 60 s; logowanie z natychmiastowym przekierowaniem na trasę chronioną może odczytać nieaktualny stan i odbić użytkownika na ekran logowania. Bug nie reprodukuje się lokalnie, gdzie magazyn jest natychmiastowy
 - **Reguła**: Przekierowanie po zapisie wyprowadzaj z odpowiedzi, którą endpoint już trzyma w ręku, a nie ze świeżego odczytu magazynu sesji
 - **Dotyczy**: plan, implement, impl-review
+
+## Clear the Vite cache before debugging dev-only hydration or SSR failures
+
+- **Kontekst**: serwer dev Astro/Vite po zmianach grafu modułów (nowy moduł, przeniesione eksporty, zmienione importy między wyspą a serwerem)
+- **Problem**: stale `node_modules/.vite` dwukrotnie dał fałszywe objawy błędu aplikacji — crash `jsxDEV is not a function` oraz cicha nie-hydratacja wyspy React (przycisk „Dodaj" wiecznie disabled, E2E czerwone), podczas gdy kod był poprawny; build produkcyjny nie ma tego problemu
+- **Reguła**: Gdy objaw istnieje tylko na serwerze dev po zmianach importów/modułów, najpierw `rm -rf node_modules/.vite` i restart serwera, dopiero potem szukaj winy w kodzie aplikacji
+- **Dotyczy**: implement, debugging

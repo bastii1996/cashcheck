@@ -1,5 +1,9 @@
 import { env } from "cloudflare:workers";
 import { EXPENSE_CATEGORIES, type ExpenseCategory, type ExpenseProposal } from "@/types";
+import { todayInWarsaw } from "@/lib/services/expense-month";
+
+// Re-exported so existing consumers (schema, tests) keep one import site.
+export { todayInWarsaw };
 
 const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
@@ -20,11 +24,6 @@ interface RawProposal {
   amount?: unknown;
   category?: unknown;
   expense_date?: unknown;
-}
-
-/** Today's calendar date in Europe/Warsaw (workerd runs in UTC — see plan). */
-export function todayInWarsaw(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
 }
 
 function buildSystemPrompt(today: string): string {
