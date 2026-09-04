@@ -1,175 +1,71 @@
-# 10x Astro Starter
+# CashCheck
 
-![](./public/template.png)
+Rejestrator wydatków, w którym wydatek dodajesz **jednym polskim zdaniem** — „biedronka 87,50", „paliwo 200 zł wczoraj" — a AI proponuje kwotę, kategorię i datę. Ty tylko sprawdzasz, poprawiasz i zapisujesz. Widok pokazuje wydatki bieżącego miesiąca z podsumowaniem per kategoria.
 
-A modern, opinionated starter template for building fast, accessible web applications.
+Produkcja: **https://cashcheck.sebastian-sobiech.workers.dev**
 
-## Tech Stack
+Projekt zaliczeniowy kursu [10xDevs 3.0](https://www.10xdevs.pl/) — zbudowany w całości w przepływie 10x (PRD → roadmap → zmiany → archiwum), z umową jakości opartą na ryzyku.
 
-- [Astro](https://astro.build/) v6 - Modern web framework with server-first rendering
-- [React](https://react.dev/) v19 - UI library for interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4 - Utility-first CSS framework
-- [Supabase](https://supabase.com/) - Authentication and backend-as-a-service
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge deployment runtime
+## Jak to działa
 
-## Prerequisites
+1. Wpisujesz zdanie i klikasz **Dodaj** — serwer wysyła je do Workers AI (`llama-3.3-70b`, tryb JSON) i normalizuje wynik (przecinki dziesiętne, kategorie bez wielkości liter, daty względne w strefie Europe/Warsaw).
+2. Dostajesz **propozycję do korekty** — braki lub awaria modelu degradują do pustej karty, nigdy nie blokują zapisu (to Ty decydujesz, AI tylko proponuje).
+3. Zapis trafia do Postgresa (Supabase) z izolacją per-użytkownik (RLS). Lista i podsumowanie „Ten miesiąc" aktualizują się na żywo; wpisy można edytować i usuwać (dwustopniowe potwierdzenie).
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+## Stos
 
-## Getting Started
+[Astro 6](https://astro.build/) SSR + [React 19](https://react.dev/) (wyspy) + TypeScript + [Tailwind 4](https://tailwindcss.com/) + [Supabase](https://supabase.com/) (auth + Postgres z RLS) + [Cloudflare Workers](https://workers.cloudflare.com/) (deploy + Workers AI). Uzasadnienie: [context/foundation/tech-stack.md](context/foundation/tech-stack.md).
 
-1. Clone the repository:
+## Szybki start
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
-
-2. Install dependencies:
+Wymagania: Node.js v22.14.0 (`.nvmrc`), npm, konto Supabase (albo lokalny stack przez Dockera), zalogowany `wrangler` (binding Workers AI otwiera sesję zdalną nawet w dev).
 
 ```bash
 npm install
+cp .env.example .env        # uzupełnij SUPABASE_URL i SUPABASE_KEY
+cp .env.example .dev.vars   # sekrety dla workerd w dev
+npm run dev                 # http://localhost:4321
 ```
 
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
+Schemat bazy: zastosuj migracje z [`supabase/migrations/`](supabase/migrations/) (SQL editor w dashboardzie Supabase albo `npx supabase db push`). Tabela `expenses` ma włączone RLS z politykami per-operacja — użytkownik widzi wyłącznie własne wiersze.
 
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
+### Zmienne środowiskowe
 
-```bash
-cp .env.example .dev.vars
-```
+| Zmienna                         | Opis                                                                             |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| `SUPABASE_URL` / `SUPABASE_KEY` | projekt Supabase (klucz publishable/anon); czytane server-only przez `astro:env` |
+| `E2E_EMAIL` / `E2E_PASSWORD`    | konto testowe do E2E (Playwright) — tylko lokalnie, nigdy w repo                 |
 
-5. Run the development server:
+## Skrypty
 
-```bash
-npm run dev
-```
+- `npm run dev` / `build` / `preview` — serwer dev (workerd), build produkcyjny, podgląd
+- `npm test` / `npm run test:watch` — testy jednostkowe (Vitest)
+- `npx playwright test` — testy E2E (uruchamiają własny serwer dev)
+- `npm run lint` / `lint:fix` / `format` — ESLint (type-checked) i Prettier
 
-## Available Scripts
+## Testy i jakość
 
-- `npm run dev` - Start development server (Cloudflare workerd runtime)
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint with type-checked rules
-- `npm run lint:fix` - Auto-fix ESLint issues
-- `npm run format` - Run Prettier
+Umowa jakości żyje w [context/foundation/test-plan.md](context/foundation/test-plan.md) — mapa ryzyk, fazowy rollout i przepisy „jak dodać test" (§6). Obecnie: **32 testy jednostkowe** (golden-zestaw parsera, walidacja zapisu, okno miesiąca) + **4 testy E2E** (Playwright, auth przez `storageState`, reguły w [tests/e2e/AGENTS.md](tests/e2e/AGENTS.md)).
 
-## Project Structure
+Lokalne bramki (od najszybszej): hak per-edit agenta (prettier + `vitest related` na obszarach ryzyka) → pre-commit (lint-staged) → pre-push (pełny lint + testy + `astro check`) → CI.
 
-```md
-.
-├── src/
-│ ├── layouts/ # Astro layouts
-│ ├── pages/ # Astro pages
-│ │ └── api/ # API endpoints
-│ ├── components/ # UI components (Astro & React)
-│ └── assets/ # Static assets
-├── public/ # Public assets
-├── wrangler.jsonc # Cloudflare Workers config
-```
+## Dokumentacja projektu
 
-## Supabase Configuration
+Fundament 10x w [`context/foundation/`](context/foundation/): [prd.md](context/foundation/prd.md) (wymagania), [roadmap.md](context/foundation/roadmap.md), [test-plan.md](context/foundation/test-plan.md), [infrastructure.md](context/foundation/infrastructure.md), [lessons.md](context/foundation/lessons.md). Historia zamkniętych zmian (research → plan → implementacja) w [`context/archive/`](context/archive/). Reguły dla agentów: [AGENTS.md](AGENTS.md).
 
-This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
-
-### First-time setup (local, no cloud project needed)
-
-Requires [Docker](https://www.docker.com/) and ~7 GB RAM.
-
-1. Create your `.env` file:
-
-```bash
-cp .env.example .env
-```
-
-2. Initialize the local Supabase project (creates a `supabase/` config folder):
-
-```bash
-npx supabase init
-```
-
-3. Start the local stack (downloads Docker images on first run):
-
-```bash
-npx supabase start
-```
-
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
-
-```
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_KEY=<anon key from CLI output>
-```
-
-5. To stop the stack when done:
-
-```bash
-npx supabase stop
-```
-
-The local Studio UI is available at `http://localhost:54323`.
-
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
-
-### Using a cloud Supabase project instead
-
-If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
-
-| Variable       | Description                                                |
-| -------------- | ---------------------------------------------------------- |
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
-
-```
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_KEY=<anon-key>
-```
-
-### Email confirmation in local development
-
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
-
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
-
-Users can then sign in immediately after sign-up without clicking a confirmation link.
-
-### Auth routes
-
-| Route                 | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                             |
-| `/auth/signup`        | Email/password sign-up form                                             |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
-
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
-
-## Deployment
-
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
-
-1. Build the project:
+## Deploy
 
 ```bash
 npm run build
-```
-
-2. Deploy with Wrangler:
-
-```bash
 npx wrangler deploy
 ```
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+Sekrety na Workers: `npx wrangler secret put SUPABASE_URL` i `SUPABASE_KEY`. Binding Workers AI (`env.AI`) konfiguruje `wrangler.jsonc`. Nowa wersja propaguje się kilka sekund.
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) uruchamia `astro sync` + lint + build na każdy push/PR do `main`. Wymagane sekrety repozytorium: `SUPABASE_URL`, `SUPABASE_KEY`, `CLOUDFLARE_API_TOKEN` (binding AI otwiera sesję zdalną podczas `astro sync`/`build`).
 
-## License
+## Licencja
 
 MIT
