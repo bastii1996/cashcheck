@@ -1,9 +1,10 @@
 ---
 change_id: test-plan-refresh-2026-09-04
 title: Odświeżenie test-planu — Playwright (m3l4) i lokalne bramki (m3l3) w umowie jakości
-status: opened
+status: archived
 created: 2026-09-04
 updated: 2026-09-04
+archived_at: 2026-09-04T07:09:01Z
 ---
 
 ## Notes

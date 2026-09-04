@@ -35,7 +35,7 @@ zaakceptowany przez użytkownika). Wszystkie fakty z research.md — bez nowych 
 
 ## Progress
 
-- [x] 1.1 §4 stack: wiersz e2e → Playwright + notes
-- [x] 1.2 §5 gates: hook wired, pre-push, e2e
-- [x] 1.3 §3 Faza 4 nota + §6.5/§6.6 cookbook
-- [x] 1.4 §8 daty + kontrola success criteria (grep pusty, hunki poza §1/§2)
+- [x] 1.1 §4 stack: wiersz e2e → Playwright + notes — 79db788
+- [x] 1.2 §5 gates: hook wired, pre-push, e2e — 79db788
+- [x] 1.3 §3 Faza 4 nota + §6.5/§6.6 cookbook — 79db788
+- [x] 1.4 §8 daty + kontrola success criteria (grep pusty, hunki poza §1/§2) — 79db788
