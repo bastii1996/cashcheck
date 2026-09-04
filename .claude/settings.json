@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/post-edit.mjs",
+            "timeout": 90,
+            "statusMessage": "prettier + vitest related (obszary ryzyka)"
+          }
+        ]
+      }
+    ]
+  }
+}

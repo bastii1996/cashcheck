@@ -29,6 +29,8 @@ CashCheck — an expense tracker where a user logs an expense as one natural-lan
 
 The quality contract lives in @context/foundation/test-plan.md — read it before writing or changing any test. Risks are scenarios (§2), rollout state is §3, cookbook patterns land in §6. The test stack (Vitest, local Supabase) arrives only through that plan's rollout phases — do not introduce runners or test layers ad hoc.
 
+Local quality layers (fast → heavy): a PostToolUse agent hook (@.claude/settings.json → `.claude/hooks/post-edit.mjs`) runs prettier plus `vitest related` on risk-area files after every Write/Edit; pre-commit (husky + lint-staged) lints staged files; pre-push runs the full test suite plus `astro check`. A failing hook is a signal to fix the code, never to bypass the hook.
+
 ## Commits & CI
 
 Commit subjects: imperative mood, ≤72 chars, say what changes (e.g. `Add expense list filtering by month`); no enforced prefix convention yet. CI (@.github/workflows/ci.yml) runs `astro sync` + lint + build on every push/PR to `main`; requires `SUPABASE_URL`/`SUPABASE_KEY` repository secrets.

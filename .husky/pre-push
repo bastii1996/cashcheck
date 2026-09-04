@@ -1,0 +1,4 @@
+set -e
+echo "pre-push: pelna suita testow + typecheck"
+npm test
+npx astro check
