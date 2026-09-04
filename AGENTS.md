@@ -27,7 +27,7 @@ CashCheck — an expense tracker where a user logs an expense as one natural-lan
 
 ## Testing
 
-No test runner is configured yet — the test stack lands with the project test plan. Do not introduce one ad hoc.
+The quality contract lives in @context/foundation/test-plan.md — read it before writing or changing any test. Risks are scenarios (§2), rollout state is §3, cookbook patterns land in §6. The test stack (Vitest, local Supabase) arrives only through that plan's rollout phases — do not introduce runners or test layers ad hoc.
 
 ## Commits & CI
 
