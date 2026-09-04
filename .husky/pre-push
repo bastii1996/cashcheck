@@ -1,4 +1,5 @@
 set -e
-echo "pre-push: pelna suita testow + typecheck"
+echo "pre-push: lint + pelna suita testow + typecheck"
+npm run lint
 npm test
 npx astro check
