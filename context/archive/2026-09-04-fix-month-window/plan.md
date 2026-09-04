@@ -27,7 +27,7 @@ reprodukcja z research.md §1); fix ma zrobić go zielonym bez psucia reszty sui
 
 ## Progress
 
-- [x] 1.1 helper expense-month + re-eksport + SSR reuse
-- [x] 1.2 ExpensesApp: filtr widoku + logowanie błędów w catch
-- [x] 1.3 unit testy expense-month (FR-007)
-- [x] 1.4 pełna weryfikacja (vitest + cała suita E2E) i sprzątnięcie sieroty z repro
+- [x] 1.1 helper expense-month + re-eksport + SSR reuse — d0df807
+- [x] 1.2 ExpensesApp: filtr widoku + logowanie błędów w catch — d0df807
+- [x] 1.3 unit testy expense-month (FR-007) — d0df807
+- [x] 1.4 pełna weryfikacja (vitest + cała suita E2E) i sprzątnięcie sieroty z repro — d0df807

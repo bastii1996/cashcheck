@@ -1,9 +1,10 @@
 ---
 change_id: fix-month-window
 title: Fix — okno miesiąca egzekwowane tylko w SSR (lista i podsumowanie kłamią do reloadu)
-status: opened
+status: archived
 created: 2026-09-04
 updated: 2026-09-04
+archived_at: 2026-09-04T07:20:21Z
 ---
 
 ## Notes
