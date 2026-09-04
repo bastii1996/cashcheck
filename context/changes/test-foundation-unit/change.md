@@ -1,7 +1,7 @@
 ---
 change_id: test-foundation-unit
 title: Fundament testów — runner Vitest i jednostkowe parsera oraz walidacji
-status: implementing
+status: implemented
 created: 2026-09-04
 updated: 2026-09-04
 archived_at: null

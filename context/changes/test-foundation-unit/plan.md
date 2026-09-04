@@ -139,10 +139,10 @@ To ta zmiana ustanawia strategię — patrz test-plan §1–§2. Mockujemy wył�
 
 #### Automatyczne
 
-- [x] 2.1 Golden parsera zielone (w tym parse_error po red→green)
-- [x] 2.2 Testy schematu zielone
-- [x] 2.3 Lint + check + build bez regresji; produkcja bez regresji (jeśli dotknięto kodu)
+- [x] 2.1 Golden parsera zielone (w tym parse_error po red→green) — 6da9d27
+- [x] 2.2 Testy schematu zielone — 6da9d27
+- [x] 2.3 Lint + check + build bez regresji; produkcja bez regresji (jeśli dotknięto kodu) — 6da9d27
 
 #### Ręczne
 
-- [ ] 2.4 Każda wyrocznia ma komentarz źródła z wymagań
+- [x] 2.4 Każda wyrocznia ma komentarz źródła z wymagań — 6da9d27
