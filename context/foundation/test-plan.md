@@ -63,12 +63,12 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                          | Goal (one line)                                                                                                                                  | Risks covered | Test types                      | Status      | Change folder                         |
-| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------------------------------- | ----------- | ------------------------------------- |
-| 1   | Fundament: runner + jednostkowe parsera i walidacji | Postawić runner i udowodnić ochronę normalizacji zdań oraz schematu zapisu golden-zestawem niezależnym od kodu                                   | #1, #5        | unit                            | complete    | context/changes/test-foundation-unit/ |
-| 2   | Integracja: izolacja użytkowników + kontrakty API   | Udowodnić na realnym Postgresie, że cudze wiersze są nietykalne (4 operacje × 2 użytkowników) i że bramkowanie tras/endpointów odmawia bez sesji | #2, #3, #5    | integration, contract           | not started | —                                     |
-| 3   | Smoke produkcyjny po wdrożeniu                      | Zamienić ręczne skrypty smoke w powtarzalną bramkę uruchamianą po deployu                                                                        | #4, #3        | smoke (deterministyczny skrypt) | not started | —                                     |
-| 4   | Okablowanie bramek jakości                          | Zablokować dolną granicę: testy w CI przed buildem, szybkie testy per-edit lokalnie                                                              | cross-cutting | gates                           | not started | —                                     |
+| #   | Phase name                                          | Goal (one line)                                                                                                                                                        | Risks covered | Test types                      | Status      | Change folder                         |
+| --- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------- | ----------- | ------------------------------------- |
+| 1   | Fundament: runner + jednostkowe parsera i walidacji | Postawić runner i udowodnić ochronę normalizacji zdań oraz schematu zapisu golden-zestawem niezależnym od kodu                                                         | #1, #5        | unit                            | complete    | context/changes/test-foundation-unit/ |
+| 2   | Integracja: izolacja użytkowników + kontrakty API   | Udowodnić na realnym Postgresie, że cudze wiersze są nietykalne (4 operacje × 2 użytkowników) i że bramkowanie tras/endpointów odmawia bez sesji                       | #2, #3, #5    | integration, contract           | not started | —                                     |
+| 3   | Smoke produkcyjny po wdrożeniu                      | Zamienić ręczne skrypty smoke w powtarzalną bramkę uruchamianą po deployu                                                                                              | #4, #3        | smoke (deterministyczny skrypt) | not started | —                                     |
+| 4   | Okablowanie bramek jakości                          | Zablokować dolną granicę: testy w CI przed buildem, szybkie testy per-edit lokalnie (lokalna połowa wdrożona w m3l3 — hak per-edit i pre-push; zostaje okablowanie CI) | cross-cutting | gates                           | not started | —                                     |
 
 **Status vocabulary** (fixed — parser literals): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
 
@@ -77,13 +77,13 @@ orchestrator updates Status as artifacts appear on disk.
 The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date so future readers can see which lines need re-verification.
 
-| Layer              | Tool                                   | Version                          | Notes                                                                                                                                                    |
-| ------------------ | -------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| unit + integration | Vitest                                 | none yet — see §3 Phase 1        | naturalny dla stosu Vite/Astro; AGENTS.md dopuszcza wprowadzenie runnera wyłącznie przez ten plan                                                        |
-| API mocking        | brak — wstrzyknięcie na granicy modelu | n/a                              | mockujemy wyłącznie wynik wywołania modelu (wstrzyknięty obiekt), nigdy modułów wewnętrznych ani klienta bazy                                            |
-| integration DB     | lokalny stack Supabase (Docker)        | none yet — see §3 Phase 2        | realny Postgres z politykami wiersz-po-wierszu; wymaga Dockera na maszynie dev                                                                           |
-| e2e                | brak — celowo                          | n/a                              | koszt × sygnał: smoke produkcyjny (§3 Faza 3) pokrywa przepływ krytyczny taniej niż utrzymanie Playwrighta w solo-projekcie; do rewizji przy wzroście UI |
-| smoke produkcyjny  | skrypt Node (fetch)                    | istnieje ad hoc — see §3 Phase 3 | deterministyczne asercje statusów i kontraktów na koncie testowym                                                                                        |
+| Layer              | Tool                                   | Version                          | Notes                                                                                                                                                                                                                                    |
+| ------------------ | -------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| unit + integration | Vitest                                 | none yet — see §3 Phase 1        | naturalny dla stosu Vite/Astro; AGENTS.md dopuszcza wprowadzenie runnera wyłącznie przez ten plan                                                                                                                                        |
+| API mocking        | brak — wstrzyknięcie na granicy modelu | n/a                              | mockujemy wyłącznie wynik wywołania modelu (wstrzyknięty obiekt), nigdy modułów wewnętrznych ani klienta bazy                                                                                                                            |
+| integration DB     | lokalny stack Supabase (Docker)        | none yet — see §3 Phase 2        | realny Postgres z politykami wiersz-po-wierszu; wymaga Dockera na maszynie dev                                                                                                                                                           |
+| e2e                | Playwright (`@playwright/test`)        | ^1.62.1 (m3l4)                   | dźwignie: `tests/e2e/seed.spec.ts` + reguły `tests/e2e/AGENTS.md`; auth raz przez UI → storageState (konto smoke z `.env`); webServer = dev; budżet: jeden test na ryzyko przeglądarkowe — nie zastępuje smoke produkcyjnego (§3 Faza 3) |
+| smoke produkcyjny  | skrypt Node (fetch)                    | istnieje ad hoc — see §3 Phase 3 | deterministyczne asercje statusów i kontraktów na koncie testowym                                                                                                                                                                        |
 
 **Stack grounding tools (current session):**
 
@@ -98,14 +98,16 @@ The full set of gates that must pass before a change reaches production.
 "Required for §3 Phase <N>" means the gate is enforced once that rollout
 phase lands; before that, the gate is `planned`.
 
-| Gate                                             | Where                     | Required?                    | Catches                                  |
-| ------------------------------------------------ | ------------------------- | ---------------------------- | ---------------------------------------- |
-| lint + typecheck (`npm run lint`, `astro check`) | local + CI                | required (już podłączone)    | dryf składni i typów                     |
-| unit (parser/walidacja)                          | local + CI                | required after §3 Phase 1    | regresje normalizacji i schematów        |
-| integration (RLS + kontrakty)                    | local + CI                | required after §3 Phase 2    | pęknięta izolacja, dziury w bramkowaniu  |
-| smoke produkcyjny po deployu                     | CI (po `wrangler deploy`) | required after §3 Phase 3    | awarie widoczne tylko na produkcji       |
-| szybkie testy per-edit (hook)                    | local (agent loop)        | recommended after §3 Phase 4 | regresje w chwili edycji                 |
-| build artifact inspection                        | local + CI                | required (lessons.md)        | obcięty artefakt przy zielonym exit code |
+| Gate                                             | Where                     | Required?                            | Catches                                    |
+| ------------------------------------------------ | ------------------------- | ------------------------------------ | ------------------------------------------ |
+| lint + typecheck (`npm run lint`, `astro check`) | local + CI                | required (już podłączone)            | dryf składni i typów                       |
+| unit (parser/walidacja)                          | local + CI                | required after §3 Phase 1            | regresje normalizacji i schematów          |
+| integration (RLS + kontrakty)                    | local + CI                | required after §3 Phase 2            | pęknięta izolacja, dziury w bramkowaniu    |
+| smoke produkcyjny po deployu                     | CI (po `wrangler deploy`) | required after §3 Phase 3            | awarie widoczne tylko na produkcji         |
+| szybkie testy per-edit (hook)                    | local (agent loop)        | wired (m3l3)                         | regresje w chwili edycji                   |
+| pełna suita + typecheck (pre-push)               | local (husky)             | required (m3l3)                      | regresje tuż przed wypchnięciem            |
+| e2e (Playwright, ryzyka przeglądarkowe)          | local                     | recommended (m3l4; CI po §3 Phase 4) | pęknięte pełne przepływy w renderowanym UI |
+| build artifact inspection                        | local + CI                | required (lessons.md)                | obcięty artefakt przy zielonym exit code   |
 
 ## 6. Cookbook Patterns
 
@@ -137,6 +139,17 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 (Optional. After each phase lands, /10x-implement appends a 2-3 line note here.)
 
+- m3l3 (poza fazami §3): hak per-edit (PostToolUse → prettier + `vitest related` na obszarach ryzyka, exit 2 = blokada) i pre-push (`npm test` + `astro check`) — lokalna połowa Fazy 4 gotowa.
+- m3l4 (poza fazami §3): Playwright + dźwignie seed/reguły; test ryzyka #1 (skorygowana propozycja) zweryfikowany celowym uszkodzeniem zapisu.
+
+### 6.6 Adding an E2E test
+
+- **Location**: `tests/e2e/<feature>.spec.ts`, jeden test na plik; auth przez `storageState` (setup w `tests/e2e/auth.setup.ts`, dane w `.env`).
+- **Levers**: wzoruj się na `tests/e2e/seed.spec.ts`; reguły w `tests/e2e/AGENTS.md` (role-lokatory, izolacja, wait-for-state, unikalne dane, budżet 1 test/ryzyko).
+- **Oracle rule**: nazwa i asercje z ryzyka test-planu (§2), nigdy z implementacji; treści propozycji AI nie asertujemy (§7). Dane przygotowuj przez `/api/expenses` (Workers AI działa server-side — `page.route` go nie przechwyci).
+- **Verification**: po zielonym uruchom celowe uszkodzenie chronionego zachowania i potwierdź czerwony; cofnij uszkodzenie przed commitem.
+- **Run locally**: `npx playwright test tests/e2e/<plik>.spec.ts` (cała suita: `npx playwright test`).
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
@@ -147,7 +160,7 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-09-04
+- Strategy (§1–§5) last reviewed: 2026-09-04 (refresh: test-plan-refresh-2026-09-04 — §4/§5/§6 po m3l3/m3l4)
 - Stack versions last verified: 2026-09-04
 - AI-native tool references last verified: 2026-09-04
 
