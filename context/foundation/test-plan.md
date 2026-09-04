@@ -63,12 +63,12 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                          | Goal (one line)                                                                                                                                  | Risks covered | Test types                      | Status       | Change folder                         |
-| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------------------------------- | ------------ | ------------------------------------- |
-| 1   | Fundament: runner + jednostkowe parsera i walidacji | Postawić runner i udowodnić ochronę normalizacji zdań oraz schematu zapisu golden-zestawem niezależnym od kodu                                   | #1, #5        | unit                            | implementing | context/changes/test-foundation-unit/ |
-| 2   | Integracja: izolacja użytkowników + kontrakty API   | Udowodnić na realnym Postgresie, że cudze wiersze są nietykalne (4 operacje × 2 użytkowników) i że bramkowanie tras/endpointów odmawia bez sesji | #2, #3, #5    | integration, contract           | not started  | —                                     |
-| 3   | Smoke produkcyjny po wdrożeniu                      | Zamienić ręczne skrypty smoke w powtarzalną bramkę uruchamianą po deployu                                                                        | #4, #3        | smoke (deterministyczny skrypt) | not started  | —                                     |
-| 4   | Okablowanie bramek jakości                          | Zablokować dolną granicę: testy w CI przed buildem, szybkie testy per-edit lokalnie                                                              | cross-cutting | gates                           | not started  | —                                     |
+| #   | Phase name                                          | Goal (one line)                                                                                                                                  | Risks covered | Test types                      | Status      | Change folder                         |
+| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------------------------------- | ----------- | ------------------------------------- |
+| 1   | Fundament: runner + jednostkowe parsera i walidacji | Postawić runner i udowodnić ochronę normalizacji zdań oraz schematu zapisu golden-zestawem niezależnym od kodu                                   | #1, #5        | unit                            | complete    | context/changes/test-foundation-unit/ |
+| 2   | Integracja: izolacja użytkowników + kontrakty API   | Udowodnić na realnym Postgresie, że cudze wiersze są nietykalne (4 operacje × 2 użytkowników) i że bramkowanie tras/endpointów odmawia bez sesji | #2, #3, #5    | integration, contract           | not started | —                                     |
+| 3   | Smoke produkcyjny po wdrożeniu                      | Zamienić ręczne skrypty smoke w powtarzalną bramkę uruchamianą po deployu                                                                        | #4, #3        | smoke (deterministyczny skrypt) | not started | —                                     |
+| 4   | Okablowanie bramek jakości                          | Zablokować dolną granicę: testy w CI przed buildem, szybkie testy per-edit lokalnie                                                              | cross-cutting | gates                           | not started | —                                     |
 
 **Status vocabulary** (fixed — parser literals): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
 
@@ -115,7 +115,11 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-- TBD — see §3 Phase 1 (wzorzec: golden-zestaw zdań → oczekiwana propozycja; wyrocznia z wymagań, nie z kodu).
+- **Location**: `test/<moduł>.test.ts` (aliasy `@` i `cloudflare:workers`→stub w `vitest.config.ts`; stub w `test/stubs/`).
+- **Naming**: `<moduł>.test.ts`, opisy przypadków po polsku z komentarzem źródła wyroczni w nawiasie kwadratowym.
+- **Oracle rule**: oczekiwania spisane z wymagań (PRD/US/test-plan), nigdy wyliczane kodem produkcyjnym; mockujemy wyłącznie `env.AI.run` przez stub.
+- **Reference test**: `test/expense-parser.test.ts` (golden przez publiczne API, mock granicy modelu) i `test/expense-schema.test.ts` (walidacja z datami liczonymi względem Europe/Warsaw).
+- **Run locally**: `npm test` (watch: `npm run test:watch`).
 
 ### 6.2 Adding an integration test
 

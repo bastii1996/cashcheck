@@ -132,16 +132,16 @@ To ta zmiana ustanawia strategię — patrz test-plan §1–§2. Mockujemy wył�
 
 #### Automatyczne
 
-- [x] 1.1 `npm test` przechodzi na smoke
-- [x] 1.2 Lint + astro check bez regresji
+- [x] 1.1 `npm test` przechodzi na smoke — 5a715f7
+- [x] 1.2 Lint + astro check bez regresji — 5a715f7
 
 ### Faza 2: Golden-testy parsera + testy schematu
 
 #### Automatyczne
 
-- [ ] 2.1 Golden parsera zielone (w tym parse_error po red→green)
-- [ ] 2.2 Testy schematu zielone
-- [ ] 2.3 Lint + check + build bez regresji; produkcja bez regresji (jeśli dotknięto kodu)
+- [x] 2.1 Golden parsera zielone (w tym parse_error po red→green)
+- [x] 2.2 Testy schematu zielone
+- [x] 2.3 Lint + check + build bez regresji; produkcja bez regresji (jeśli dotknięto kodu)
 
 #### Ręczne
 

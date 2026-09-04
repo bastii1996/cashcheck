@@ -42,22 +42,25 @@ function buildSystemPrompt(today: string): string {
   ].join("\n");
 }
 
-function extractRawProposal(result: unknown): RawProposal {
+// Returns null when the model's reply is not usable at all (missing or
+// unparseable) — the caller flags that as parse_error so the UI can say
+// "couldn't process the sentence" instead of showing a bare empty card.
+function extractRawProposal(result: unknown): RawProposal | null {
   if (result === null || typeof result !== "object" || !("response" in result)) {
-    return {};
+    return null;
   }
   const response: unknown = result.response;
   if (typeof response === "string") {
     try {
       return JSON.parse(response) as RawProposal;
     } catch {
-      return {};
+      return null;
     }
   }
   if (response !== null && typeof response === "object") {
     return response;
   }
-  return {};
+  return null;
 }
 
 function normalizeAmount(raw: unknown): number | null {
@@ -120,6 +123,9 @@ export async function parseExpenseSentence(sentence: string): Promise<ExpensePro
     });
 
     const raw = extractRawProposal(result);
+    if (raw === null) {
+      return { ...base, parse_error: true };
+    }
 
     return {
       ...base,
