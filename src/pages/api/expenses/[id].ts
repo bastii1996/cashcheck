@@ -1,15 +1,9 @@
 import type { APIRoute } from "astro";
+import { json } from "@/lib/http";
 import { createClient } from "@/lib/supabase";
 import { expenseIdSchema, expensePayloadSchema } from "@/lib/services/expense-schema";
 
 export const prerender = false;
-
-function json(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 // RLS scopes every statement to auth.uid() = user_id, so touching someone
 // else's id affects zero rows — surfaced uniformly as 404.
