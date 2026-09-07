@@ -2,26 +2,16 @@
 import Layout from "@/layouts/Layout.astro";
 import ExpensesApp from "@/components/expenses/ExpensesApp";
 import { createClient } from "@/lib/supabase";
-import { currentMonthWindow } from "@/lib/services/expense-month";
+import { selectCurrentMonthExpenses } from "@/lib/services/expense-query";
 import type { Expense } from "@/types";
 
 const { user } = Astro.locals;
-
-// Current month window in Europe/Warsaw — same source of truth as the island (FR-007).
-const { monthStart, nextMonthStart } = currentMonthWindow();
 
 let expenses: Expense[] = [];
 let loadError = false;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (supabase) {
-  const { data, error } = await supabase
-    .from("expenses")
-    .select("*")
-    .gte("expense_date", monthStart)
-    .lt("expense_date", nextMonthStart)
-    .order("expense_date", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(500);
+  const { data, error } = await selectCurrentMonthExpenses(supabase);
   if (error) {
     // eslint-disable-next-line no-console -- observability sink for wrangler tail
     console.error("expenses: list query failed", error);
@@ -45,14 +35,22 @@ if (supabase) {
           </h1>
           <p class="text-xs text-blue-100/50">{user?.email}</p>
         </div>
-        <form method="POST" action="/api/auth/signout">
-          <button
-            type="submit"
+        <div class="flex items-center gap-2">
+          <a
+            href="/api/expenses/export.csv"
             class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
           >
-            Wyloguj
-          </button>
-        </form>
+            Eksport CSV
+          </a>
+          <form method="POST" action="/api/auth/signout">
+            <button
+              type="submit"
+              class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
+            >
+              Wyloguj
+            </button>
+          </form>
+        </div>
       </header>
       {
         loadError && (

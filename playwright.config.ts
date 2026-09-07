@@ -9,7 +9,10 @@ try {
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  fullyParallel: true,
+  // One shared smoke account: summary/category assertions are account-global,
+  // so parallel workers can interfere (seen once on 4 workers). Serial is ~35 s.
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: "list",

@@ -2,45 +2,33 @@ Project rules live in @AGENTS.md — read it first. The block below is course-le
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
----
+## 10xDevs AI Toolkit - Moduł 2, Lekcja 4
 
-name: 10xDevs AI Toolkit - Module 3, Lesson 4 (E2E Tests)
-description: End-to-end testing with AI
-license: CC BY-NC-ND 4.0
-metadata:
-tags: AI, E2E, testing, Playwright
-version: 1.0.0
-module: 3
-lesson: 4
+Przygotuj się na trudniejszy strumień implementacji z **łańcuchem planowania opartym na badaniach**:
 
----
+```
+badania wewnętrzne (/10x-research) + badania zewnętrzne (exa.ai, Context7) -> /10x-plan -> /10x-implement -> sukces
+```
 
-## 10xDevs AI Toolkit - Moduł 3, Lekcja 4 (Testy E2E)
+Lekcja koncentruje się na rozróżnianiu badań wewnętrznych od zewnętrznych oraz wykorzystywaniu dowodów do wspierania decyzji planistycznych.
 
-**Do testów E2E użyj umiejętności `/10x-e2e`.** Jest to jedyne źródło prawdy
-dla przepływu pracy — ryzyko → test początkowy + zasady → generowanie → przegląd pod kątem pięciu
-antywzorców → ponowne zapytanie → weryfikacja. `references/` umiejętności zawierają pełne
-zasady, antywzorce, wzorzec początkowy i szablon promptu.
+### Router zadań - Od czego zacząć
 
-Kilka twardych zasad, które obowiązują jeszcze przed wywołaniem umiejętności:
+| Umiejętność                                                      | Kiedy jej używać                                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Badania wewnętrzne (fokus lekcji)**                            |                                                                                                                                                                                                                                                                  |
+| `/10x-research <change-id>`                                      | Potrzebujesz dowodów z istniejącej bazy kodu — wzorców, konwencji, punktów integracji lub istniejących implementacji. Uruchamia równoległe sub-agenty w repozytorium i zapisuje ustrukturyzowane wyniki do `research.md`.                                        |
+| **Badania zewnętrzne (fokus lekcji)**                            |                                                                                                                                                                                                                                                                  |
+| exa.ai                                                           | Potrzebujesz natywnego dla AI wyszukiwania w sieci w celu porównania bibliotek, najlepszych praktyk lub kontekstu ekosystemu, na które baza kodu nie może odpowiedzieć.                                                                                          |
+| Context7 (`resolve-library-id` → `get-library-docs`)             | Potrzebujesz aktualnej dokumentacji dla konkretnej biblioteki lub frameworka. Najpierw rozwiązuje ID biblioteki, a następnie pobiera odpowiednie strony dokumentacji.                                                                                            |
+| **Kadrowanie koła zapasowego**                                   |                                                                                                                                                                                                                                                                  |
+| `/10x-frame <change-id>`                                         | Plan nie zbiega się, plan nie przynosi oczekiwanych rezultatów, lub uporczywe odchylenia ciągle psują implementację. Użyj jako wyjścia awaryjnego dla oddzielnego problemu (zademonstrowane na przykładzie Space Explorers), a nie jako rytuału przed badaniami. |
+| **Planowanie i wykonanie**                                       |                                                                                                                                                                                                                                                                  |
+| `/10x-plan <change-id>` / `/10x-implement <change-id> phase <n>` | Użyj tego samego łańcucha planowania i wykonania z Lekcji 2, teraz z dowodami z badań wstępnych zasilającymi plan.                                                                                                                                               |
 
-- **Lokalizatory:** Najpierw `getByRole` / `getByLabel` / `getByText`; `getByTestId`
-  tylko wtedy, gdy atrybuty dostępności są niejednoznaczne. Nigdy selektory CSS, XPath
-  ani struktura DOM.
-- **Nigdy `page.waitForTimeout()`.** Czekaj na stan: `toBeVisible()`,
-  `waitForURL()`, `waitForResponse()`.
-- **Niezależność testów + czyszczenie.** Każdy test działa samodzielnie — własna konfiguracja,
-  akcja, asercja i czyszczenie; unikalne identyfikatory (sufiks znacznika czasu), aby równoległe uruchomienia
-  i ponowne uruchomienia nie kolidowały.
+### Dyscyplina badawcza
 
-Dwie granice, które należy rozróżnić:
-
-- **DOM (migawka) jest domyślny.** Wizja (`--caps=vision`) jest uzupełnieniem dla
-  ryzyk wizualnych (układ, z-index, animacja); dla regresji pikseli preferuj
-  narzędzia deterministyczne (`toMatchSnapshot`, Argos, Lost Pixel). Wybór/koszt modelu VLM
-  to temat debugowania (Lekcja 5), a nie testowania.
-- **Healer pomaga w selektorach, szkodzi w logice.** Zmieniony selektor → healer
-  odnajduje go ponownie (trasa przez przegląd PR). Zmienione zachowanie biznesowe → healer
-  maskuje błąd; ten przypadek nieudanego testu do naprawy to Lekcja 5.
+- Badania wewnętrzne (`/10x-research`) odpowiadają na pytanie "co już robi nasza baza kodu?" — wzorce, schematy, konwencje, punkty integracji.
+- Badania zewnętrzne (exa.ai, Context7) odpowiadają na pytanie "co powinniśmy zrobić?" — możliwości bibliotek, dokumentacja API, najlepsze praktyki ek
 
 <!-- END @przeprogramowani/10x-cli -->

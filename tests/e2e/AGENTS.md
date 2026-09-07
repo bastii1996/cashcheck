@@ -8,6 +8,7 @@ Model every generated test on `seed.spec.ts` in this directory. Never generate a
 - Assert the business outcome, not implementation details. Control question: would this assertion fail if the test-plan risk materialized? If not, it is decorative.
 - Use unique identifiers (timestamp suffix) for test data so parallel runs and re-runs never collide; clean up what you create.
 - Authenticate through `storageState` (see `auth.setup.ts`) — never log in through UI in individual tests.
+- Negative-auth assertions: build the anonymous context with an explicit empty `storageState: { cookies: [], origins: [] }` — a bare `request.newContext()` can inherit the project's signed-in state and turn a 401 test into a false 200.
 - Real vs mocked: internal boundaries (auth, routing, DB) stay real — that is where integration risk hides. Mock expensive or non-deterministic external APIs only. Workers AI is called **server-side**, so `page.route()` cannot intercept it — set up data through `/api/expenses` instead of driving the AI parse flow when the risk under test is not the parser itself.
 - Budget: one test per risk, rarely more than 1–3 per change phase. Never a test per page or per button.
 - Run a single spec with: `npx playwright test tests/e2e/<file>.spec.ts`
