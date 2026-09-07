@@ -25,6 +25,7 @@ Instruction files merge **additively** (root → subdirectory), so keep this roo
 ## Commands
 
 - `npm run dev` / `build` / `preview` — dev server (workerd), production build, preview.
+- `npm run deploy` — build + `wrangler deploy` in one step; never deploy without a fresh build (`wrangler deploy` happily ships a stale `dist/`).
 - `npm run lint` / `lint:fix` / `format` — ESLint (type-checked) and Prettier.
 - `npx supabase start` — local Supabase stack (Docker).
 - Pre-commit: husky + lint-staged run `eslint --fix` and `prettier --write`. Node 22.14.0 (@.nvmrc).

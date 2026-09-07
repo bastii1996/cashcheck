@@ -1,9 +1,10 @@
 ---
 change_id: export-month-csv
 title: Eksport bieżącego miesiąca do CSV przyjaznego polskiemu Excelowi
-status: opened
+status: archived
 created: 2026-09-07
 updated: 2026-09-07
+archived_at: 2026-09-07T06:56:49Z
 ---
 
 ## Notes
