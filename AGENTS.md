@@ -18,6 +18,10 @@ CashCheck — an expense tracker where a user logs an expense as one natural-lan
 - `src/middleware.ts` — resolves `context.locals.user`; add gated paths to `PROTECTED_ROUTES`.
 - `supabase/migrations/` — files named `YYYYMMDDHHmmss_short_description.sql`.
 
+## Context architecture
+
+Instruction files merge **additively** (root → subdirectory), so keep this root file lean and reference-heavy; durable knowledge lives in `context/` (foundation = current truth, archive = closed changes), never inline here. One scoped file exists today: @tests/e2e/AGENTS.md. Add another per-directory AGENTS.md only on an observable trigger — an area grows its own conventions or framework (like E2E did), agents repeatedly make the same mistake there, or rules for that area start crowding this root. Never paste `context/` content into rule files; link it.
+
 ## Commands
 
 - `npm run dev` / `build` / `preview` — dev server (workerd), production build, preview.
