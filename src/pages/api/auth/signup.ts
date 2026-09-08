@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
+import { toUserMessage } from "@/lib/services/auth-errors";
 
 export const prerender = false;
 
@@ -17,7 +18,7 @@ export const POST: APIRoute = async (context) => {
   });
 
   if (!parsed.success) {
-    const message = parsed.error.issues[0]?.message ?? "Invalid sign-up data";
+    const message = toUserMessage(parsed.error.issues[0]?.message);
     return context.redirect(`/auth/signup?error=${encodeURIComponent(message)}`);
   }
 
@@ -25,10 +26,16 @@ export const POST: APIRoute = async (context) => {
   if (!supabase) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);
   }
-  const { error } = await supabase.auth.signUp(parsed.data);
+  const { data, error } = await supabase.auth.signUp(parsed.data);
 
   if (error) {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
+    return context.redirect(`/auth/signup?error=${encodeURIComponent(toUserMessage(error.message))}`);
+  }
+
+  // Email confirmation is a Supabase project setting, not a build-time fact:
+  // a session here means the account is already active, so send the user in.
+  if (data.session) {
+    return context.redirect("/expenses");
   }
 
   return context.redirect("/auth/confirm-email");

@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
+import { toUserMessage } from "@/lib/services/auth-errors";
 
 export const prerender = false;
 
@@ -17,7 +18,7 @@ export const POST: APIRoute = async (context) => {
   });
 
   if (!parsed.success) {
-    const message = parsed.error.issues[0]?.message ?? "Invalid sign-in data";
+    const message = toUserMessage(parsed.error.issues[0]?.message);
     return context.redirect(`/auth/signin?error=${encodeURIComponent(message)}`);
   }
 
@@ -28,7 +29,7 @@ export const POST: APIRoute = async (context) => {
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent(error.message)}`);
+    return context.redirect(`/auth/signin?error=${encodeURIComponent(toUserMessage(error.message))}`);
   }
 
   return context.redirect("/expenses");

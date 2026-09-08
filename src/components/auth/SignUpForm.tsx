@@ -17,6 +17,7 @@ export default function SignUpForm({ serverError }: Props) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
 
   function validate() {
@@ -51,7 +52,10 @@ export default function SignUpForm({ serverError }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
+      return;
     }
+    // Browser takes over from here; the spinner stays until it navigates away.
+    setSubmitting(true);
   }
 
   const passwordHint =
@@ -126,7 +130,7 @@ export default function SignUpForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Creating account..." icon={<UserPlus className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText="Creating account..." icon={<UserPlus className="size-4" />}>
         Create account
       </SubmitButton>
     </form>

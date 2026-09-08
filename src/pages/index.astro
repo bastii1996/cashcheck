@@ -1,8 +1,19 @@
 ---
-import Welcome from "@/components/Welcome.astro";
+// Middleware owns "/": signed-in visitors go to /expenses, everyone else to
+// /auth/signin. This page is only a safety net if that redirect ever changes.
 import Layout from "@/layouts/Layout.astro";
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="CashCheck">
+  <div class="bg-cosmic flex min-h-screen flex-col items-center justify-center gap-4 p-4 text-white">
+    <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+      CashCheck
+    </h1>
+    <a
+      href="/auth/signin"
+      class="rounded-lg bg-purple-600 px-5 py-2.5 font-medium transition-colors hover:bg-purple-500"
+    >
+      Zaloguj się
+    </a>
+  </div>
 </Layout>

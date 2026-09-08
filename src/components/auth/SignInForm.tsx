@@ -13,6 +13,7 @@ export default function SignInForm({ serverError }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   function validate() {
@@ -36,7 +37,10 @@ export default function SignInForm({ serverError }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
+      return;
     }
+    // Browser takes over from here; the spinner stays until it navigates away.
+    setSubmitting(true);
   }
 
   return (
@@ -79,7 +83,7 @@ export default function SignInForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Signing in..." icon={<LogIn className="size-4" />}>
+      <SubmitButton pending={submitting} pendingText="Signing in..." icon={<LogIn className="size-4" />}>
         Sign in
       </SubmitButton>
     </form>

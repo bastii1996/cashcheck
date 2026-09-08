@@ -11,8 +11,12 @@ const error = Astro.url.searchParams.get("error");
       <h1
         class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
       >
-        Sign in
+        CashCheck
       </h1>
+      <p class="mb-6 text-center text-sm text-blue-100/60">
+        Zapisuj wydatki jednym zdaniem — AI podpowie kwotę, kategorię i datę.
+      </p>
+      <h2 class="mb-4 text-center text-lg font-semibold text-white">Sign in</h2>
       <SignInForm serverError={error} client:load />
       <p class="mt-4 text-center text-sm text-blue-100/60">
         Don't have an account? <a href="/auth/signup" class="text-purple-300 hover:underline">Sign up</a>

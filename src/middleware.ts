@@ -15,11 +15,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = null;
   }
 
-  // Signed-in home is the expenses view; /dashboard (old starter page) is gone
-  // but the URL keeps working for bookmarks.
+  // The site has one entry point: signed-in users land on the expenses view,
+  // everyone else goes straight to sign-in (no starter landing page).
+  // /dashboard (old starter page) is gone but its URL keeps working for bookmarks.
   const pathname = context.url.pathname;
-  if (pathname.startsWith("/dashboard") || (pathname === "/" && context.locals.user)) {
-    return context.redirect("/expenses");
+  if (pathname.startsWith("/dashboard") || pathname === "/") {
+    return context.redirect(context.locals.user ? "/expenses" : "/auth/signin");
   }
 
   if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
