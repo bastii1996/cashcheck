@@ -1,15 +1,9 @@
 import type { APIRoute } from "astro";
+import { json } from "@/lib/http";
 import { createClient } from "@/lib/supabase";
 import { expensePayloadSchema } from "@/lib/services/expense-schema";
 
 export const prerender = false;
-
-function json(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
