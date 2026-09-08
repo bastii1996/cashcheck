@@ -29,3 +29,10 @@
 - **Problem**: stale `node_modules/.vite` dwukrotnie dał fałszywe objawy błędu aplikacji — crash `jsxDEV is not a function` oraz cicha nie-hydratacja wyspy React (przycisk „Dodaj" wiecznie disabled, E2E czerwone), podczas gdy kod był poprawny; build produkcyjny nie ma tego problemu
 - **Reguła**: Gdy objaw istnieje tylko na serwerze dev po zmianach importów/modułów, najpierw `rm -rf node_modules/.vite` i restart serwera, dopiero potem szukaj winy w kodzie aplikacji
 - **Dotyczy**: implement, debugging
+
+## Wait for island hydration before driving a partially-hydrated UI in tests
+
+- **Kontekst**: testy E2E (Playwright) na stronach Astro z wyspami `client:load`, zwłaszcza przeciw serwerowi dev
+- **Problem**: `fill`/`click` wykonane między renderem SSR a hydratacją wpadają w próżnię — DOM przyjmuje tekst, ale stan React go nie widzi, więc przycisk zależny od stanu zostaje `disabled` do timeoutu. Objaw wygląda jak zepsuta aplikacja albo flake, a naprawdę jest wyścigiem testu z hydratacją; ujawnia się dopiero, gdy coś wydłuży kompilację (nowy moduł, zimny cache Vite) — u nas po dodaniu eksportu CSV
+- **Reguła**: Przed pierwszą interakcją z wyspą czekaj na stan hydratacji (`astro-island[ssr]` → 0 sztuk; helper `tests/e2e/hydration.ts`), po każdym `goto` i `reload`. Nigdy nie „naprawiaj" tego `waitForTimeout`
+- **Dotyczy**: e2e, implement, debugging

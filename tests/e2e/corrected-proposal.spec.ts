@@ -10,6 +10,7 @@
 // spoza tego testu (test sprząta po sobie; po przerwanym runie usuń osierocone
 // wiersze ręcznie).
 import { test, expect } from "@playwright/test";
+import { waitForIslandsHydrated } from "./hydration";
 
 /** Today's calendar date in Europe/Warsaw — matches the app's month window. */
 function todayInWarsaw(): string {
@@ -27,6 +28,7 @@ test("skorygowana propozycja zapisuje dokładnie wartości użytkownika i zasila
   const formattedAmount = pln.format(amount);
 
   await page.goto("/expenses");
+  await waitForIslandsHydrated(page);
 
   // Krok 1: zdanie idzie do AI — celowo bełkot; propozycja może mieć braki
   // albo flagę błędu, ale karta korekty MUSI się pojawić (kontrakt ryzyka #1).

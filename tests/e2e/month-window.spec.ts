@@ -4,6 +4,7 @@
 // przeładowania strony. Ten test był NAJPIERW czerwony (reprodukcja), fix czyni
 // go zielonym i zostaje jako regresja. Wzorowany na seed.spec.ts.
 import { test, expect } from "@playwright/test";
+import { waitForIslandsHydrated } from "./hydration";
 
 /** Today's calendar date in Europe/Warsaw — matches the app's month window. */
 function todayInWarsaw(): string {
@@ -23,6 +24,7 @@ test("wydatek zapisany z datą z poprzedniego miesiąca nie figuruje w widoku TE
   const description = `Miesiąc E2E ${Date.now()}`;
 
   await page.goto("/expenses");
+  await waitForIslandsHydrated(page);
 
   // Przez UI (ścieżka błędu): propozycja → korekta daty na poprzedni miesiąc → zapis.
   await page.getByLabel("Opisz wydatek jednym zdaniem").fill("rachunek sprzed miesiąca");

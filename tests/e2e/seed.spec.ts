@@ -5,6 +5,7 @@
 // Granice realne: auth (storageState), routing, API, DB. Setup danych idzie
 // przez API zamiast UI, żeby ominąć niedeterministyczne wywołanie Workers AI.
 import { test, expect } from "@playwright/test";
+import { waitForIslandsHydrated } from "./hydration";
 
 /** Today's calendar date in Europe/Warsaw — matches the app's month window. */
 function todayInWarsaw(): string {
@@ -26,8 +27,10 @@ test("zapisany wydatek przetrwa przeładowanie strony (SSR czyta z bazy)", async
   // wyspy do osobnego elementu, więc goły getByText łapałby dwa węzły.
   const row = page.getByRole("listitem").filter({ hasText: description });
   await page.goto("/expenses");
+  await waitForIslandsHydrated(page);
   await expect(row).toBeVisible();
   await page.reload();
+  await waitForIslandsHydrated(page);
   await expect(row).toBeVisible();
 
   // Czyszczenie przez UI: dwustopniowe usuwanie (Usuń → „Na pewno?", FR-006).

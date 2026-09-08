@@ -5,6 +5,7 @@ Model every generated test on `seed.spec.ts` in this directory. Never generate a
 - Use `getByRole`, `getByLabel`, `getByText` as primary locators. Fall back to `getByTestId` only when accessibility attributes are ambiguous. Never CSS selectors, XPath, or DOM structure.
 - Each test must be independently runnable — own setup, action, assertion, cleanup; no shared state between tests.
 - Never use `page.waitForTimeout()`. Wait for specific conditions: `toBeVisible()`, `waitForURL()`, `waitForResponse()`.
+- Before driving an Astro island (typing, clicking) call `waitForIslandsHydrated(page)` from `./hydration` — after every `goto` and every `reload`. An un-hydrated island swallows `fill`: the DOM gets the text, React state does not, and the submit button stays disabled until the test times out.
 - Assert the business outcome, not implementation details. Control question: would this assertion fail if the test-plan risk materialized? If not, it is decorative.
 - Use unique identifiers (timestamp suffix) for test data so parallel runs and re-runs never collide; clean up what you create.
 - Authenticate through `storageState` (see `auth.setup.ts`) — never log in through UI in individual tests.
