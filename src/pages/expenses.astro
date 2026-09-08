@@ -24,42 +24,42 @@ if (supabase) {
 ---
 
 <Layout title="CashCheck — wydatki">
-  <div class="bg-cosmic min-h-screen p-4 text-white sm:p-8">
-    <div class="mx-auto flex w-full max-w-xl flex-col gap-6">
-      <header class="flex items-center justify-between gap-3">
-        <div>
-          <h1
-            class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl"
-          >
-            CashCheck
-          </h1>
-          <p class="text-xs text-blue-100/50">{user?.email}</p>
+  <div class="bg-cosmic min-h-screen">
+    <!-- Full-bleed bar: the app frame, not a floating card (see .impeccable.md). -->
+    <header class="border-ink-800 border-b">
+      <div class="mx-auto flex w-full max-w-[88rem] items-center justify-between gap-4 px-5 py-4 sm:px-8">
+        <div class="flex items-baseline gap-3">
+          <span class="font-display text-ink-100 text-xl font-bold tracking-tight">CashCheck</span>
+          <span class="text-ink-500 hidden text-xs sm:inline">{user?.email}</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
           <a
             href="/api/expenses/export.csv"
-            class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
+            class="text-ink-300 hover:bg-ink-850 hover:text-ink-100 rounded-md px-3 py-1.5 text-sm transition-colors"
           >
             Eksport CSV
           </a>
           <form method="POST" action="/api/auth/signout">
             <button
               type="submit"
-              class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
+              class="text-ink-400 hover:bg-ink-850 hover:text-ink-100 rounded-md px-3 py-1.5 text-sm transition-colors"
             >
               Wyloguj
             </button>
           </form>
         </div>
-      </header>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-[88rem] px-5 py-8 sm:px-8 sm:py-10">
       {
         loadError && (
-          <p class="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+          <p class="border-alert/40 bg-alert/10 mb-6 rounded-md border px-3 py-2 text-sm text-red-200">
             Nie udało się wczytać wydatków — odśwież stronę lub spróbuj później.
           </p>
         )
       }
       <ExpensesApp client:load initialExpenses={expenses} />
-    </div>
+    </main>
   </div>
 </Layout>

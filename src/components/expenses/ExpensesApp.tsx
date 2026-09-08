@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { isInCurrentMonth } from "@/lib/services/expense-month";
+import { isInCurrentMonth, todayInWarsaw } from "@/lib/services/expense-month";
 import {
   EXPENSE_CATEGORIES,
   type CreateExpenseCommand,
@@ -25,7 +25,7 @@ const plnFormatter = new Intl.NumberFormat("pl-PL", { style: "currency", currenc
 const dateFormatter = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long" });
 
 const inputClass =
-  "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2.5 text-white placeholder-blue-100/40 focus:border-blue-300/60 focus:outline-none";
+  "border-ink-700 bg-ink-900 text-ink-100 placeholder-ink-500 focus:border-lime-accent/60 w-full rounded-md border px-3 py-2.5 transition-colors focus:outline-none";
 
 function formatDay(isoDate: string): string {
   const parsed = Date.parse(`${isoDate}T00:00:00`);
@@ -229,295 +229,353 @@ export default function ExpensesApp({ initialExpenses }: Props) {
 
   const amountMissing = draft !== null && draft.amount.trim() === "";
   const categoryMissing = draft !== null && draft.category === "";
+  // Hero context: the month total means little without "how fast am I spending".
+  const dayOfMonth = Number(todayInWarsaw().slice(8, 10));
+  const dailyAverage = summary.grandTotal / Math.max(dayOfMonth, 1);
+  const maxCategoryTotal = summary.rows.reduce((max, row) => Math.max(max, row.total), 0);
+  const topCategoryName = summary.rows.length > 0 ? summary.rows[0].category : "—";
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
-      <form onSubmit={handleParse} className="flex flex-col gap-3 sm:flex-row">
-        <label htmlFor="sentence" className="sr-only">
-          Opisz wydatek jednym zdaniem
-        </label>
-        <input
-          id="sentence"
-          type="text"
-          value={sentence}
-          onChange={(e) => {
-            setSentence(e.target.value);
-          }}
-          placeholder='np. "biedronka 87,50" albo "paliwo 200 zł wczoraj"'
-          maxLength={300}
-          autoFocus
-          className={cn(inputClass, "flex-1 text-base")}
-        />
-        <button
-          type="submit"
-          disabled={busy !== null || !sentence.trim()}
-          className="rounded-lg bg-blue-500/80 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
-        >
-          {busy === "parse" ? "Analizuję…" : "Dodaj"}
-        </button>
-      </form>
-
-      {draft && (
-        <form
-          onSubmit={handleSave}
-          className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl"
-        >
-          <h2 className="text-lg font-semibold">Propozycja — sprawdź i zapisz</h2>
-          {draft.parseError && (
-            <p className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
-              Nie udało się przetworzyć zdania — uzupełnij pola ręcznie.
-            </p>
-          )}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <label className="flex flex-col gap-1 text-sm text-blue-100/80">
-              Kwota (zł)
-              <input
-                type="text"
-                inputMode="decimal"
-                value={draft.amount}
-                onChange={(e) => {
-                  setDraft({ ...draft, amount: e.target.value });
-                }}
-                placeholder="0,00"
-                className={cn(inputClass, amountMissing && "border-red-400/70 ring-1 ring-red-400/50")}
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm text-blue-100/80">
-              Kategoria
-              <select
-                value={draft.category}
-                onChange={(e) => {
-                  setDraft({ ...draft, category: e.target.value as ExpenseCategory | "" });
-                }}
-                className={cn(
-                  inputClass,
-                  "appearance-none [&>option]:text-slate-900",
-                  categoryMissing && "border-red-400/70 ring-1 ring-red-400/50",
-                )}
-              >
-                <option value="" disabled>
-                  Wybierz…
-                </option>
-                {EXPENSE_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-sm text-blue-100/80">
-              Data
-              <input
-                type="date"
-                value={draft.expenseDate}
-                onChange={(e) => {
-                  setDraft({ ...draft, expenseDate: e.target.value });
-                }}
-                className={cn(inputClass, "[color-scheme:dark]")}
-              />
-            </label>
-          </div>
-          <label className="flex flex-col gap-1 text-sm text-blue-100/80">
-            Opis
-            <input
-              type="text"
-              value={draft.description}
-              maxLength={300}
-              onChange={(e) => {
-                setDraft({ ...draft, description: e.target.value });
-              }}
-              className={inputClass}
-            />
-          </label>
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={busy !== null}
-              className="flex-1 rounded-lg bg-emerald-500/80 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
-            >
-              {busy === "save" ? "Zapisuję…" : "Zapisz wydatek"}
-            </button>
-            <button
-              type="button"
-              disabled={busy !== null}
-              onClick={() => {
-                setDraft(null);
-                setError(null);
-              }}
-              className="rounded-lg border border-white/20 px-4 py-2.5 text-sm text-blue-100/80 transition-colors hover:bg-white/10"
-            >
-              Odrzuć
-            </button>
-          </div>
-        </form>
-      )}
-
-      {error && (
-        <p role="alert" className="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100">
-          {error}
-        </p>
-      )}
-
-      {visibleExpenses.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <h2 className="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ten miesiąc wg kategorii</h2>
-          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-            <table className="w-full text-sm">
-              <tbody>
-                {summary.rows.map((row) => (
-                  <tr key={row.category} className="border-b border-white/5 last:border-0">
-                    <td className="py-1.5 text-blue-100/80">{row.category}</td>
-                    <td className="py-1.5 text-right font-medium text-white">{plnFormatter.format(row.total)}</td>
-                  </tr>
-                ))}
-                <tr className="border-t border-white/20">
-                  <td className="py-2 font-semibold tracking-wide text-blue-100/80 uppercase">Łącznie</td>
-                  <td className="py-2 text-right text-base font-bold text-white">
-                    {plnFormatter.format(summary.grandTotal)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ten miesiąc</h2>
-        {visibleExpenses.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-blue-100/50">
-            Brak wydatków w tym miesiącu — dodaj pierwszy jednym zdaniem powyżej.
+    <div className="flex w-full flex-col gap-10">
+      {/* Hero: the month total is the loudest thing on screen; the rest is context. */}
+      <section className="border-ink-800 grid gap-x-12 gap-y-6 border-b pb-8 lg:grid-cols-[minmax(0,20rem)_1fr] lg:items-end">
+        <div>
+          <p className="text-ink-400 text-xs font-semibold tracking-[0.18em] uppercase">Wydatki w tym miesiącu</p>
+          <p className="amount text-lime-accent mt-2 text-5xl leading-none font-bold sm:text-6xl">
+            {plnFormatter.format(summary.grandTotal)}
           </p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {visibleExpenses.map((expense) =>
-              editingId === expense.id && editDraft ? (
-                <li key={expense.id} className="rounded-xl border border-blue-300/30 bg-white/10 px-4 py-3">
-                  <form onSubmit={handleUpdate} className="flex flex-col gap-3">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                      <label className="flex flex-col gap-1 text-xs text-blue-100/70">
-                        Kwota (zł)
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={editDraft.amount}
-                          onChange={(e) => {
-                            setEditDraft({ ...editDraft, amount: e.target.value });
-                          }}
-                          className={inputClass}
-                        />
-                      </label>
-                      <label className="flex flex-col gap-1 text-xs text-blue-100/70">
-                        Kategoria
-                        <select
-                          value={editDraft.category}
-                          onChange={(e) => {
-                            setEditDraft({ ...editDraft, category: e.target.value as ExpenseCategory });
-                          }}
-                          className={cn(inputClass, "appearance-none [&>option]:text-slate-900")}
+        </div>
+        <dl className="lg:border-ink-800 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:border-l lg:pl-12">
+          <div>
+            <dt className="text-ink-500 text-xs tracking-wide uppercase">Wpisów</dt>
+            <dd className="amount text-ink-100 mt-1 text-2xl font-semibold">{visibleExpenses.length}</dd>
+          </div>
+          <div>
+            <dt className="text-ink-500 text-xs tracking-wide uppercase">Średnio na dzień</dt>
+            <dd className="amount text-ink-100 mt-1 text-2xl font-semibold">{plnFormatter.format(dailyAverage)}</dd>
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <dt className="text-ink-500 text-xs tracking-wide uppercase">Najwięcej na</dt>
+            <dd className="text-ink-100 mt-1 truncate text-2xl font-semibold">{topCategoryName}</dd>
+          </div>
+        </dl>
+      </section>
+
+      {/* Entry stays the fastest thing here (design principle 4). */}
+      <section className="flex flex-col gap-4">
+        <form onSubmit={handleParse} className="flex flex-col gap-3 sm:flex-row">
+          <label htmlFor="sentence" className="sr-only">
+            Opisz wydatek jednym zdaniem
+          </label>
+          <input
+            id="sentence"
+            type="text"
+            value={sentence}
+            onChange={(e) => {
+              setSentence(e.target.value);
+            }}
+            placeholder={'np. "biedronka 87,50" albo "paliwo 200 zł wczoraj"'}
+            maxLength={300}
+            autoFocus
+            className={cn(inputClass, "flex-1 py-3.5 text-base")}
+          />
+          <button
+            type="submit"
+            disabled={busy !== null || !sentence.trim()}
+            className="bg-lime-accent text-lime-ink hover:bg-lime-strong rounded-md px-7 py-3.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {busy === "parse" ? "Analizuję…" : "Dodaj"}
+          </button>
+        </form>
+
+        {draft && (
+          <form
+            onSubmit={handleSave}
+            className="border-lime-accent/30 bg-ink-900 flex flex-col gap-4 rounded-lg border p-5"
+          >
+            <h2 className="font-display text-ink-100 text-lg font-semibold">Propozycja — sprawdź i zapisz</h2>
+            {draft.parseError && (
+              <p className="rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-200">
+                Nie udało się przetworzyć zdania — uzupełnij pola ręcznie.
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-[10rem_12rem_10rem_1fr]">
+              <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                Kwota (zł)
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={draft.amount}
+                  onChange={(e) => {
+                    setDraft({ ...draft, amount: e.target.value });
+                  }}
+                  placeholder="0,00"
+                  className={cn(inputClass, "amount", amountMissing && "border-alert ring-alert/40 ring-1")}
+                />
+              </label>
+              <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                Kategoria
+                <select
+                  value={draft.category}
+                  onChange={(e) => {
+                    setDraft({ ...draft, category: e.target.value as ExpenseCategory | "" });
+                  }}
+                  className={cn(
+                    inputClass,
+                    "[&>option]:bg-ink-900 [&>option]:text-ink-100 appearance-none",
+                    categoryMissing && "border-alert ring-alert/40 ring-1",
+                  )}
+                >
+                  <option value="" disabled>
+                    Wybierz…
+                  </option>
+                  {EXPENSE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                Data
+                <input
+                  type="date"
+                  value={draft.expenseDate}
+                  onChange={(e) => {
+                    setDraft({ ...draft, expenseDate: e.target.value });
+                  }}
+                  className={cn(inputClass, "[color-scheme:dark]")}
+                />
+              </label>
+              <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                Opis
+                <input
+                  type="text"
+                  value={draft.description}
+                  maxLength={300}
+                  onChange={(e) => {
+                    setDraft({ ...draft, description: e.target.value });
+                  }}
+                  className={inputClass}
+                />
+              </label>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={busy !== null}
+                className="bg-lime-accent text-lime-ink hover:bg-lime-strong rounded-md px-6 py-2.5 font-semibold transition-colors disabled:opacity-40"
+              >
+                {busy === "save" ? "Zapisuję…" : "Zapisz wydatek"}
+              </button>
+              <button
+                type="button"
+                disabled={busy !== null}
+                onClick={() => {
+                  setDraft(null);
+                  setError(null);
+                }}
+                className="text-ink-400 hover:text-ink-100 rounded-md px-4 py-2.5 text-sm transition-colors"
+              >
+                Odrzuć
+              </button>
+            </div>
+          </form>
+        )}
+
+        {error && (
+          <p role="alert" className="border-alert/40 bg-alert/10 rounded-md border px-3 py-2 text-sm text-red-200">
+            {error}
+          </p>
+        )}
+      </section>
+
+      {/* Dense two-column body: the ledger earns the width, breakdown sits beside it. */}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:gap-14">
+        <section className="flex flex-col gap-3">
+          <div className="border-ink-800 flex items-baseline justify-between border-b pb-2">
+            <h2 className="text-ink-400 text-xs font-semibold tracking-[0.18em] uppercase">Ten miesiąc</h2>
+            <span className="amount text-ink-500 text-xs">{visibleExpenses.length} poz.</span>
+          </div>
+          {visibleExpenses.length === 0 ? (
+            <div className="py-14 text-center">
+              <p className="font-display text-ink-300 text-lg">Miesiąc jeszcze pusty</p>
+              <p className="text-ink-500 mt-1.5 text-sm">
+                {'Napisz wyżej „biedronka 87,50" — kwotę, kategorię i datę podpowie AI.'}
+              </p>
+            </div>
+          ) : (
+            <ul className="flex flex-col">
+              {visibleExpenses.map((expense) =>
+                editingId === expense.id && editDraft ? (
+                  <li key={expense.id} className="border-ink-800 bg-ink-900 border-b px-3 py-4">
+                    <form onSubmit={handleUpdate} className="flex flex-col gap-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[9rem_11rem_9rem_1fr]">
+                        <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                          Kwota (zł)
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={editDraft.amount}
+                            onChange={(e) => {
+                              setEditDraft({ ...editDraft, amount: e.target.value });
+                            }}
+                            className={cn(inputClass, "amount")}
+                          />
+                        </label>
+                        <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                          Kategoria
+                          <select
+                            value={editDraft.category}
+                            onChange={(e) => {
+                              setEditDraft({ ...editDraft, category: e.target.value as ExpenseCategory });
+                            }}
+                            className={cn(inputClass, "[&>option]:bg-ink-900 [&>option]:text-ink-100 appearance-none")}
+                          >
+                            {EXPENSE_CATEGORIES.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                          Data
+                          <input
+                            type="date"
+                            value={editDraft.expenseDate}
+                            onChange={(e) => {
+                              setEditDraft({ ...editDraft, expenseDate: e.target.value });
+                            }}
+                            className={cn(inputClass, "[color-scheme:dark]")}
+                          />
+                        </label>
+                        <label className="text-ink-400 flex flex-col gap-1.5 text-xs tracking-wide uppercase">
+                          Opis
+                          <input
+                            type="text"
+                            value={editDraft.description}
+                            maxLength={300}
+                            onChange={(e) => {
+                              setEditDraft({ ...editDraft, description: e.target.value });
+                            }}
+                            className={inputClass}
+                          />
+                        </label>
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          type="submit"
+                          disabled={busy !== null}
+                          className="bg-lime-accent text-lime-ink hover:bg-lime-strong rounded-md px-5 py-2 text-sm font-semibold transition-colors disabled:opacity-40"
                         >
-                          {EXPENSE_CATEGORIES.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="flex flex-col gap-1 text-xs text-blue-100/70">
-                        Data
-                        <input
-                          type="date"
-                          value={editDraft.expenseDate}
-                          onChange={(e) => {
-                            setEditDraft({ ...editDraft, expenseDate: e.target.value });
+                          {busy === "update" ? "Zapisuję…" : "Zapisz zmiany"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy !== null}
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditDraft(null);
                           }}
-                          className={cn(inputClass, "[color-scheme:dark]")}
-                        />
-                      </label>
+                          className="text-ink-400 hover:text-ink-100 rounded-md px-3 py-2 text-sm transition-colors"
+                        >
+                          Anuluj
+                        </button>
+                      </div>
+                    </form>
+                  </li>
+                ) : (
+                  <li
+                    key={expense.id}
+                    className="group border-ink-800 hover:bg-ink-900 grid grid-cols-[1fr_auto] items-center gap-4 border-b px-3 py-3.5 transition-colors sm:grid-cols-[5.5rem_1fr_8rem_auto] sm:gap-6"
+                  >
+                    <span className="amount text-ink-500 hidden text-sm sm:block">
+                      {formatDay(expense.expense_date)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-ink-100 truncate font-medium">{expense.description}</p>
+                      <p className="text-ink-500 mt-0.5 text-xs">
+                        <span className="sm:hidden">{formatDay(expense.expense_date)} · </span>
+                        {expense.category}
+                      </p>
                     </div>
-                    <label className="flex flex-col gap-1 text-xs text-blue-100/70">
-                      Opis
-                      <input
-                        type="text"
-                        value={editDraft.description}
-                        maxLength={300}
-                        onChange={(e) => {
-                          setEditDraft({ ...editDraft, description: e.target.value });
-                        }}
-                        className={inputClass}
-                      />
-                    </label>
-                    <div className="flex gap-2">
+                    <p className="amount text-ink-100 text-right text-lg font-semibold whitespace-nowrap">
+                      {plnFormatter.format(expense.amount)}
+                    </p>
+                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 max-sm:col-span-2 max-sm:justify-end max-sm:opacity-100">
                       <button
-                        type="submit"
+                        type="button"
                         disabled={busy !== null}
-                        className="flex-1 rounded-lg bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                        onClick={() => {
+                          startEdit(expense);
+                        }}
+                        aria-label={`Edytuj wydatek ${expense.description}`}
+                        className="text-ink-300 hover:bg-ink-850 hover:text-ink-100 rounded px-2 py-1 text-xs transition-colors"
                       >
-                        {busy === "update" ? "Zapisuję…" : "Zapisz zmiany"}
+                        Edytuj
                       </button>
                       <button
                         type="button"
                         disabled={busy !== null}
                         onClick={() => {
-                          setEditingId(null);
-                          setEditDraft(null);
+                          void handleDelete(expense.id);
                         }}
-                        className="rounded-lg border border-white/20 px-3 py-2 text-sm text-blue-100/80 transition-colors hover:bg-white/10"
+                        aria-label={`Usuń wydatek ${expense.description}`}
+                        className={cn(
+                          "rounded px-2 py-1 text-xs transition-colors",
+                          deleteArmedId === expense.id
+                            ? "bg-alert/20 font-semibold text-red-200"
+                            : "text-ink-300 hover:bg-ink-850 hover:text-ink-100",
+                        )}
                       >
-                        Anuluj
+                        {deleteArmedId === expense.id ? "Na pewno?" : "Usuń"}
                       </button>
                     </div>
-                  </form>
-                </li>
-              ) : (
-                <li
-                  key={expense.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-white">{expense.description}</p>
-                    <p className="text-xs text-blue-100/50">
-                      {formatDay(expense.expense_date)} · {expense.category}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-base font-semibold whitespace-nowrap text-white">
-                      {plnFormatter.format(expense.amount)}
-                    </p>
-                    <button
-                      type="button"
-                      disabled={busy !== null}
-                      onClick={() => {
-                        startEdit(expense);
-                      }}
-                      aria-label={`Edytuj wydatek ${expense.description}`}
-                      className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs text-blue-100/80 transition-colors hover:bg-white/10"
-                    >
-                      Edytuj
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy !== null}
-                      onClick={() => {
-                        void handleDelete(expense.id);
-                      }}
-                      aria-label={`Usuń wydatek ${expense.description}`}
-                      className={cn(
-                        "rounded-lg border px-2.5 py-1.5 text-xs transition-colors",
-                        deleteArmedId === expense.id
-                          ? "border-red-400/70 bg-red-500/20 font-semibold text-red-100"
-                          : "border-white/15 text-blue-100/80 hover:bg-white/10",
-                      )}
-                    >
-                      {deleteArmedId === expense.id ? "Na pewno?" : "Usuń"}
-                    </button>
-                  </div>
-                </li>
-              ),
-            )}
-          </ul>
+                  </li>
+                ),
+              )}
+            </ul>
+          )}
+        </section>
+
+        {visibleExpenses.length > 0 && (
+          <section className="flex flex-col gap-3">
+            <h2 className="border-ink-800 text-ink-400 border-b pb-2 text-xs font-semibold tracking-[0.18em] uppercase">
+              Ten miesiąc wg kategorii
+            </h2>
+            <table className="w-full">
+              <tbody>
+                {summary.rows.map((row) => (
+                  <tr key={row.category} className="border-ink-800/60 border-b">
+                    <td className="py-2.5 pr-3 align-middle">
+                      <span className="text-ink-300 text-sm">{row.category}</span>
+                      {/* Share bar: proportion of the biggest category, read at a glance. */}
+                      <span className="bg-ink-850 mt-1.5 block h-[3px] w-full">
+                        <span
+                          className="bg-lime-accent/70 block h-full"
+                          style={{
+                            width: `${String(maxCategoryTotal > 0 ? (row.total / maxCategoryTotal) * 100 : 0)}%`,
+                          }}
+                        />
+                      </span>
+                    </td>
+                    <td className="amount text-ink-100 py-2.5 text-right align-top text-sm font-medium whitespace-nowrap">
+                      {plnFormatter.format(row.total)}
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td className="text-ink-400 pt-3 text-xs font-semibold tracking-[0.18em] uppercase">Łącznie</td>
+                  <td className="amount text-lime-accent pt-3 text-right text-lg font-bold whitespace-nowrap">
+                    {plnFormatter.format(summary.grandTotal)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
         )}
-      </section>
+      </div>
     </div>
   );
 }

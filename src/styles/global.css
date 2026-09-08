@@ -110,8 +110,37 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* CashCheck palette and type — see .impeccable.md (dense financial panel:
+   graphite tinted green, one lime accent reserved for amounts and the
+   primary action; no starter navy/purple, no gradient text). */
+@theme {
+  --color-ink-950: oklch(0.145 0.008 165);
+  --color-ink-900: oklch(0.181 0.009 165);
+  --color-ink-850: oklch(0.216 0.01 165);
+  --color-ink-800: oklch(0.253 0.011 165);
+  --color-ink-700: oklch(0.322 0.012 165);
+  --color-ink-500: oklch(0.556 0.012 165);
+  --color-ink-400: oklch(0.652 0.011 165);
+  --color-ink-300: oklch(0.744 0.009 165);
+  --color-ink-100: oklch(0.942 0.006 165);
+  --color-lime-accent: oklch(0.845 0.168 128);
+  --color-lime-strong: oklch(0.78 0.175 128);
+  --color-lime-ink: oklch(0.248 0.072 128);
+  --color-alert: oklch(0.63 0.19 25);
+  --font-display: "Space Grotesk", ui-sans-serif, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, sans-serif;
+}
+
 @utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
+  background-color: var(--color-ink-950);
+  background-image: radial-gradient(90rem 40rem at 15% -10%, oklch(0.235 0.028 150 / 0.85), transparent 65%);
+}
+
+/* Amounts line up column-wise: real tabular figures, not visual guesswork. */
+@utility amount {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 @layer base {
@@ -119,6 +148,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-cosmic text-ink-100 font-sans;
   }
 }
